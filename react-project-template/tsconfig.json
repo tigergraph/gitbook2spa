@@ -1,0 +1,29 @@
+{
+    "compilerOptions": {
+        "target": "ES2015",
+        "module": "commonjs",
+        "strict": true,
+        "jsx": "react",
+        "baseUrl": "./",
+        "paths": {
+            "@parts/*": [
+                "parts/*"
+            ],
+            "@lib/*": [
+                "lib/*"
+            ],
+            "@build/*": [
+                "build/*"
+            ],
+            "@source/*": [
+                "source/*"
+            ],
+            "@styles/*": [
+                "styles/*"
+            ],
+        },
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}
