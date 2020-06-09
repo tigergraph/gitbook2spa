@@ -143,7 +143,7 @@ export const Sider: React.FC = ({ children }) => {
                         case 'one':
                             return <OnHover>
                                 {isEnter => {
-                                    return <div style={{ marginBottom: "12px", padding: onSelect ? "4px 16px 4px 22px" : "4px 16px 4px 24px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none" }}>
+                                    return <div style={{ marginBottom: "8px", padding: onSelect ? "4px 16px 4px 22px" : "4px 16px 4px 24px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none" }}>
                                         <a href={href} style={{ color: (isEnter || onSelect) ? "rgb(252, 108, 4)" : "rgb(116, 129, 141)", textDecoration: "none", fontSize: '15px', lineHeight: "15px" }}>
                                             {ele.textContent}
                                         </a>
@@ -153,7 +153,7 @@ export const Sider: React.FC = ({ children }) => {
                         case 'two':
                             return <OnHover>
                                 {isEnter => {
-                                    return <div style={{ marginBottom: "12px", padding: onSelect ? "4px 16px 4px 22px" : "4px 16px 4px 40px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none" }}>
+                                    return <div style={{ marginBottom: "8px", padding: onSelect ? "4px 16px 4px 38px" : "4px 16px 4px 40px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none" }}>
                                         <a href={href} style={{ color: (isEnter || onSelect) ? "rgb(252, 108, 4)" : "rgb(116, 129, 141)", textDecoration: "none", fontSize: '12px', lineHeight: "18px" }}>
                                             {ele.textContent}
                                         </a>
@@ -161,7 +161,7 @@ export const Sider: React.FC = ({ children }) => {
                                 }}
                             </OnHover>
                         default:
-                            return <div>___</div>
+                            return null
                     }
                 })
             }
