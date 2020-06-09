@@ -75,6 +75,7 @@ export const Sider: React.FC = ({ children }) => {
     const location = useLocation();
     const versionName = getVersionPage(location.pathname)?.version!
     const pageRoutes = reversion.versions[versionName]?.page;
+    const anchorLinks = React.useRef<HTMLCollectionOf<Element>>(document.getElementsByClassName("heading-anchor-link"));
     const [loading, setLoading] = React.useState(true);
     const [showVersion, setShowVersion] = React.useState(false);
 
@@ -129,6 +130,42 @@ export const Sider: React.FC = ({ children }) => {
             {renderSider(pageRoutes?.pages)}
         </div>
         {children}
+        <div style={{
+            borderLeft: "1px solid #E6ECF1",
+            paddingTop: "40px"
+        }}>
+            {
+                Array.from(anchorLinks.current).map(ele => {
+                    const level = (ele as any).dataset.level
+                    const href = `#${(ele.textContent || "").toLowerCase().replace(/\s+|\./g, "_")}`
+                    const onSelect = location.hash === href
+                    switch (level) {
+                        case 'one':
+                            return <OnHover>
+                                {isEnter => {
+                                    return <div style={{ marginBottom: "12px", padding: onSelect ? "4px 16px 4px 22px" : "4px 16px 4px 24px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none" }}>
+                                        <a href={href} style={{ color: (isEnter || onSelect) ? "rgb(252, 108, 4)" : "rgb(116, 129, 141)", textDecoration: "none", fontSize: '15px', lineHeight: "15px" }}>
+                                            {ele.textContent}
+                                        </a>
+                                    </div>
+                                }}
+                            </OnHover>
+                        case 'two':
+                            return <OnHover>
+                                {isEnter => {
+                                    return <div style={{ marginBottom: "12px", padding: onSelect ? "4px 16px 4px 22px" : "4px 16px 4px 40px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none" }}>
+                                        <a href={href} style={{ color: (isEnter || onSelect) ? "rgb(252, 108, 4)" : "rgb(116, 129, 141)", textDecoration: "none", fontSize: '12px', lineHeight: "18px" }}>
+                                            {ele.textContent}
+                                        </a>
+                                    </div>
+                                }}
+                            </OnHover>
+                        default:
+                            return <div>___</div>
+                    }
+                })
+            }
+        </div>
     </div>
 }
 
