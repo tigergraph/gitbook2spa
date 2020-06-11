@@ -9,7 +9,7 @@ clean:
 
 build:
 	./exec/parser -zip ${ZIP} -dir ${DIR} -white ${WHITE}
-	# cd ${DIR}/source && yarn prod
+	cd ${DIR}/source && yarn prod
 
 dev:
 	./exec/parser -zip ${ZIP} -dir ${DIR} -white ${WHITE}
