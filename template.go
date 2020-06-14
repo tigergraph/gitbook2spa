@@ -64,6 +64,7 @@ func RenderTsxTemplate(dom string) string {
 	import { Inline } from '@parts/Inline.tsx';
 	import { Sider } from '@parts/Sider.tsx';
 	import { Header } from '@parts/Header.tsx';
+	import { Recommend } from '@parts/Recommend.tsx';
 
 	export default () => <Header><Sider>` + dom + `</Sider></Header>
 	`

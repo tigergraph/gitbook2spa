@@ -8,9 +8,9 @@ clean:
 	rm -rf exec
 
 build:
-	./exec/parser -zip ${ZIP} -dir ${DIR} -white ${WHITE}
+	./exec/parser -zip ${ZIP} -dir ${DIR} -white ${WHITE} -default ${DEFAULT}
 	cd ${DIR}/source && yarn prod
 
 dev:
-	./exec/parser -zip ${ZIP} -dir ${DIR} -white ${WHITE}
+	./exec/parser -zip ${ZIP} -dir ${DIR} -white ${WHITE} -default ${DEFAULT}
 	cd ${DIR}/source && yarn dev

@@ -25,7 +25,7 @@ func (n *NodeTree) RenderHTML() string {
 		return RenderMark(n, nodesResult)
 	}
 
-	return "<div></div>"
+	return "<Document><Recommend/></Document>"
 }
 
 func (n *NodeTree) RenderNodes() string {

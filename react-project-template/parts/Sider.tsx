@@ -78,6 +78,13 @@ export const Sider: React.FC = ({ children }) => {
     const anchorLinks = React.useRef<HTMLCollectionOf<Element>>(document.getElementsByClassName("heading-anchor-link"));
     const [loading, setLoading] = React.useState(true);
     const [showVersion, setShowVersion] = React.useState(false);
+    const [toTop, setToTop] = React.useState(0);
+
+    const dispatchWidnowEvent = () => {
+        const evt: any = window.document.createEvent('UIEvents');
+        evt.initUIEvent('scroll', true, false, window, 0);
+        window.dispatchEvent(evt);
+    }
 
     const currentVersionItem = versionList.filter(v => getVersionPage(location.pathname)?.version === v)?.[0]
 
@@ -88,83 +95,114 @@ export const Sider: React.FC = ({ children }) => {
         }
     }, [loading])
 
-    return <div style={{ display: "flex", flexDirection: "row" }}>
-        <div style={{ minWidth: "340px", minHeight: "100vh", backgroundColor: "#F5F7F9", width: "280px", paddingTop: "20px", borderRight: "1px solid #E6ECF1" }}>
-            <GroupLayoutUI title={"versions"}>
-                <IndentLayout>
-                    {
-                        !!currentVersionItem && <SiderItemRenderUI
-                            onPress={() => setShowVersion(!showVersion)}
-                            title={currentVersionItem}
-                            path={""}
-                            kind={""}
-                            href={""}
-                            onSelected={false}
-                            hasChildren={true}
-                            onOpen={showVersion}
-                        />
-                    }
-                    {
-                        showVersion && versionList.map((v, idx) => {
-                            return <SiderItemRenderUI
-                                key={idx}
-                                title={v}
-                                path={`/${v}/${reversion.versions[v]?.page?.uid}`}
-                                kind={reversion.versions[v]?.page?.kind}
-                                href={reversion.versions[v]?.page?.href}
-                                onSelected={getVersionPage(location.pathname)?.version === v}
+    React.useEffect(() => {
+        window.addEventListener("scroll", (event: any) => {
+            const scrollTop = (event.srcElement ? event?.srcElement?.documentElement?.scrollTop : false)
+                || window?.pageYOffset
+                || (event?.srcElement ? event?.srcElement?.body?.scrollTop : 0);
+
+            setToTop(scrollTop)
+        })
+
+        return () => window.removeEventListener("scroll", () => { })
+    }, [])
+
+    return <div style={{ height: "100%", display: "flex", flexDirection: "row" }}>
+        <div style={{ minWidth: "340px", zIndex: 999 }}>
+            <div style={{
+                minWidth: "340px",
+                height: "100%",
+                backgroundColor: "#F5F7F9",
+                width: "280px",
+                paddingTop: "20px",
+                borderRight: "1px solid #E6ECF1",
+                overflowY: "auto",
+                overflowX: "hidden",
+                ...(toTop > 80) ? { position: "fixed", top: 0 } : {}
+            }}>
+                <GroupLayoutUI title={"versions"}>
+                    <IndentLayout>
+                        {
+                            !!currentVersionItem && <SiderItemRenderUI
+                                onPress={() => setShowVersion(!showVersion)}
+                                title={currentVersionItem}
+                                path={""}
+                                kind={""}
+                                href={""}
+                                onSelected={false}
+                                hasChildren={true}
+                                onOpen={showVersion}
                             />
-                        })
-                    }
+                        }
+                        {
+                            showVersion && versionList.map((v, idx) => {
+                                return <SiderItemRenderUI
+                                    key={idx}
+                                    title={v}
+                                    path={`/${v}/${reversion.versions[v]?.page?.uid}`}
+                                    kind={reversion.versions[v]?.page?.kind}
+                                    href={reversion.versions[v]?.page?.href}
+                                    onSelected={getVersionPage(location.pathname)?.version === v}
+                                />
+                            })
+                        }
+                    </IndentLayout>
+                </GroupLayoutUI>
+                {/* document index */}
+                <IndentLayout>
+                    <SiderItemRenderUI
+                        kind={pageRoutes?.kind}
+                        href={pageRoutes?.href}
+                        title={pageRoutes?.title}
+                        path={`/${pageRoutes?.uid}`}
+                    />
                 </IndentLayout>
-            </GroupLayoutUI>
-            {/* document index */}
-            <IndentLayout>
-                <SiderItemRenderUI
-                    kind={pageRoutes?.kind}
-                    href={pageRoutes?.href}
-                    title={pageRoutes?.title}
-                    path={`/${pageRoutes?.uid}`}
-                />
-            </IndentLayout>
-            {renderSider(pageRoutes?.pages)}
+                {renderSider(pageRoutes?.pages)}
+            </div>
         </div>
         {children}
-        <div style={{
-            borderLeft: "1px solid #E6ECF1",
-            paddingTop: "40px"
-        }}>
-            {
-                Array.from(anchorLinks.current).map(ele => {
-                    const level = (ele as any).dataset.level
-                    const href = `#${(ele.textContent || "").toLowerCase().replace(/\s+|\./g, "_")}`
-                    const onSelect = location.hash === href
-                    switch (level) {
-                        case 'one':
-                            return <OnHover>
-                                {isEnter => {
-                                    return <div style={{ marginBottom: "8px", padding: onSelect ? "4px 16px 4px 22px" : "4px 16px 4px 24px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none" }}>
-                                        <a href={href} style={{ color: (isEnter || onSelect) ? "rgb(252, 108, 4)" : "rgb(116, 129, 141)", textDecoration: "none", fontSize: '15px', lineHeight: "15px" }}>
-                                            {ele.textContent}
-                                        </a>
-                                    </div>
-                                }}
-                            </OnHover>
-                        case 'two':
-                            return <OnHover>
-                                {isEnter => {
-                                    return <div style={{ marginBottom: "8px", padding: onSelect ? "4px 16px 4px 38px" : "4px 16px 4px 40px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none" }}>
-                                        <a href={href} style={{ color: (isEnter || onSelect) ? "rgb(252, 108, 4)" : "rgb(116, 129, 141)", textDecoration: "none", fontSize: '12px', lineHeight: "18px" }}>
-                                            {ele.textContent}
-                                        </a>
-                                    </div>
-                                }}
-                            </OnHover>
-                        default:
-                            return null
-                    }
-                })
-            }
+        <div style={{ height: "100%", minWidth: "340px" }}>
+            <div style={{
+                borderLeft: "1px solid #E6ECF1",
+                paddingTop: "40px",
+                overflowY: "auto",
+                overflowX: "hidden",
+                height: "100%",
+                zIndex: 999,
+                ...(toTop > 80) ? { position: "fixed", top: 0 } : {},
+            }}>
+                {
+                    Array.from(anchorLinks.current).map(ele => {
+                        const level = (ele as any).dataset.level
+                        const href = `#${(ele.textContent || "").toLowerCase().replace(/\s+|\./g, "_")}`
+                        const onSelect = location.hash === href
+                        switch (level) {
+                            case 'one':
+                                return <OnHover>
+                                    {isEnter => {
+                                        return <div style={{ marginBottom: "8px", padding: onSelect ? "4px 16px 4px 22px" : "4px 16px 4px 24px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none" }}>
+                                            <a onClick={() => dispatchWidnowEvent()} href={href} style={{ color: (isEnter || onSelect) ? "rgb(252, 108, 4)" : "rgb(116, 129, 141)", textDecoration: "none", fontSize: '15px', lineHeight: "15px" }}>
+                                                {ele.textContent}
+                                            </a>
+                                        </div>
+                                    }}
+                                </OnHover>
+                            case 'two':
+                                return <OnHover>
+                                    {isEnter => {
+                                        return <div style={{ marginBottom: "8px", padding: onSelect ? "4px 16px 4px 38px" : "4px 16px 4px 40px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none" }}>
+                                            <a onClick={() => dispatchWidnowEvent()} href={href} style={{ color: (isEnter || onSelect) ? "rgb(252, 108, 4)" : "rgb(116, 129, 141)", textDecoration: "none", fontSize: '12px', lineHeight: "18px" }}>
+                                                {ele.textContent}
+                                            </a>
+                                        </div>
+                                    }}
+                                </OnHover>
+                            default:
+                                return null
+                        }
+                    })
+                }
+            </div>
         </div>
     </div>
 }

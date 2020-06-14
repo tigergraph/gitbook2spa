@@ -15,6 +15,7 @@ type Config struct {
 	ZipFile   string
 	Workdir   string
 	WhiteList string
+	Default   string
 }
 
 type VersionInfo struct {
@@ -40,6 +41,7 @@ type TopLevelVersion struct {
 type TaskInfo struct {
 	ZipPath                  string
 	WhiteList                []string
+	Default                  string
 	SrcPath                  string
 	DistPath                 string
 	ReactProjectTemplatePath string
@@ -67,6 +69,7 @@ func (c *Config) TaskInfo() *TaskInfo {
 	t := TaskInfo{
 		ZipPath:                  filepath.Join(c.Workdir, "zip"),
 		WhiteList:                strings.Split(c.WhiteList, ","),
+		Default:                  c.Default,
 		SrcPath:                  filepath.Join(c.Workdir, "source", "source"),
 		DistPath:                 filepath.Join(c.Workdir, "dist"),
 		ReactProjectTemplatePath: filepath.Join(c.Workdir, "react-project-template"),
@@ -82,6 +85,7 @@ func main() {
 	flag.StringVar(&cfg.ZipFile, "zip", "./gitbook.zip", "gitbook exported zip file path")
 	flag.StringVar(&cfg.Workdir, "dir", "./", "working directory")
 	flag.StringVar(&cfg.WhiteList, "white", "", "white list")
+	flag.StringVar(&cfg.Default, "default", "", "default version")
 	flag.Parse()
 	task = cfg.TaskInfo()
 
@@ -262,7 +266,13 @@ func makeAppRoot() {
 
 	routeImportPath := ""
 	routesElements := ""
-	defaultRoute := fmt.Sprintf("<Redirect to={'/%v'}/>", versionList[0].Version)
+	defaultVersion := versionList[0].Version
+
+	if len(task.Default) > 0 {
+		defaultVersion = task.Default
+	}
+
+	defaultRoute := fmt.Sprintf("<Redirect to={'/%v'}/>", defaultVersion)
 
 	for _, v := range versionList {
 		routeImportPath += v.ImportPath + "\n"
@@ -346,8 +356,6 @@ func makeVersionRoot(version string) {
 	content := fmt.Sprintf(`
 	import * as React from 'react'
 	import { Route, withRouter, Redirect, Switch } from 'react-router';
-	import { Sider } from '@parts/Sider.tsx';
-	import { Header } from '@parts/Header.tsx';
 	%v
 	
 	export default withRouter(props => {
