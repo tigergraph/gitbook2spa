@@ -1,5 +1,6 @@
 package main
 
+// html文件模版函数
 func RenderHTMLTemplate(bundleName string, versionName string) string {
 	return `
 	<!DOCTYPE html>
@@ -52,6 +53,7 @@ func RenderHTMLTemplate(bundleName string, versionName string) string {
 	`
 }
 
+// tsx文件模版函数
 func RenderTsxTemplate(dom string) string {
 	return `
 	import * as React from 'react';

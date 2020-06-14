@@ -164,6 +164,7 @@ export const Sider: React.FC = ({ children }) => {
         <div style={{ height: "100%", minWidth: "340px" }}>
             <div style={{
                 borderLeft: "1px solid #E6ECF1",
+                minWidth: "340px",
                 paddingTop: "40px",
                 overflowY: "auto",
                 overflowX: "hidden",

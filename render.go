@@ -4,6 +4,7 @@ import (
 	"strings"
 )
 
+// 渲染block type的json结构
 func RenderBlock(n *NodeTree, child string) string {
 	attrWithType := []AttrStringStruct{{
 		Key:   "type",
@@ -20,6 +21,7 @@ func RenderBlock(n *NodeTree, child string) string {
 	return H("Block", child, AttrString(attrWithType)+AttrInterface(attrWithData)+AttrInterface(attrWithKey))
 }
 
+// 渲染document type的json结构
 func RenderDocument(n *NodeTree, child string) string {
 	attr := []AttrStringStruct{{
 		Key:   "type",
@@ -32,6 +34,7 @@ func RenderDocument(n *NodeTree, child string) string {
 	return H("Document", child, AttrString(attr)+AttrInterface(attrWithKey))
 }
 
+// 渲染inline type的json结构
 func RenderInline(n *NodeTree, child string) string {
 	typeAttr := []AttrStringStruct{{
 		Key:   "type",
@@ -57,6 +60,7 @@ func RenderInline(n *NodeTree, child string) string {
 	return text
 }
 
+// 渲染mark type的json结构
 func RenderMark(n *NodeTree, child string) string {
 	attrWithKey := []AttrInterfaceStruct{{
 		Key:   "key",
@@ -65,6 +69,7 @@ func RenderMark(n *NodeTree, child string) string {
 	return H("Mark", child, ""+AttrInterface(attrWithKey))
 }
 
+// 渲染text type的json结构
 func RenderText(n *NodeTree, child string) string {
 	text := ""
 	if len(n.Ranges) > 0 {
@@ -94,6 +99,7 @@ func RenderText(n *NodeTree, child string) string {
 	return text
 }
 
+// 解析element tag的props部分，
 func transfer(s string, char ...byte) string {
 	for i := 0; i < len(s); i++ {
 		for _, c := range char {

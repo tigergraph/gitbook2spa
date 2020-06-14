@@ -106,6 +106,7 @@ func unzipSourceFiles(fileName string) {
 	Unzip(cfg.ZipFile, task.SrcPath)
 }
 
+// 生成依赖文件的映射关系
 func makeAssetsPath() {
 	pathJson := map[string]AssetsInfo{}
 
@@ -125,6 +126,7 @@ func makeAssetsPath() {
 	WriteFile(filepath.Join(task.SrcPath, "assets.js"), "module.exports = "+pathJsonStr)
 }
 
+// 将json转为tsx的入口函数
 func json2tsx() {
 	originDirPath := filepath.Join(task.SrcPath, "versions")
 	targetDirPath := filepath.Join(task.SrcPath, "versions")
@@ -169,6 +171,7 @@ func parseJSON(jsonPath string, targetPath string, version string) {
 	}
 }
 
+// 最后的html文件的模版函数
 func makeHtmlTemplate() {
 	template := `
     <!DOCTYPE html>
@@ -214,11 +217,13 @@ func makeHtmlTemplate() {
 	WriteFile(filepath.Join(task.DistPath, "index.html"), template)
 }
 
+// 将转译好的jsx字符串写至tsx模版文件
 func makeTSX(jsonPath string) string {
 	htmlDom := Parser(jsonPath)
 	return RenderTsxTemplate(htmlDom)
 }
 
+// 获取目录下所有文件
 func WalkDir(path string, cb func(filePath string, filename string)) {
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
@@ -235,6 +240,7 @@ func WalkDir(path string, cb func(filePath string, filename string)) {
 	}
 }
 
+// 生成spa的入口文件并且也是一个路由部分，里面包含了各版本目录下的的路由入口文件
 func makeAppRoot() {
 	appRootPath := filepath.Join(task.SrcPath, "_appRoute.tsx")
 	versionDirPath := filepath.Join(task.SrcPath, "versions")
@@ -307,6 +313,7 @@ func makeAppRoot() {
 	WriteFile(appRootPath, content)
 }
 
+// 生成版本目录下的的路由入口文件
 func makeVersionRoot(version string) {
 
 	versionPath := filepath.Join(task.SrcPath, "versions", version)
@@ -368,6 +375,7 @@ func makeVersionRoot(version string) {
 	WriteFile(versionRootPath, content)
 }
 
+// 根据目标uid递归寻找revision下的page json
 func deepFindPage(pages []VersionInfo, targetUid string) (VersionInfo, bool) {
 	for _, page := range pages {
 		if page.Uid == targetUid {

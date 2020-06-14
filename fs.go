@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// 文件是否存在
 func fileExists(filename string) bool {
 	var exist = true
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
@@ -17,6 +18,7 @@ func fileExists(filename string) bool {
 	return exist
 }
 
+// 写文件
 func WriteFile(filename string, content string) bool {
 	var f *os.File
 	if fileExists(filename) {
