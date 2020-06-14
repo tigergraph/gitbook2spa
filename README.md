@@ -13,6 +13,8 @@ Ps: Makefile 项目根目录下执行
 # 如何工作的？
 此项目主要分为两部分,`根目录`下的Golang部分与`react-project-template`目录下的JavaScript部分  
 
+![introduce](./introduce.png "introduce")
+
 
 ├── README.md  
 ├── go.mod  
