@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { style } from 'typestyle'
+import { Link } from 'react-router-dom'
 
 export const Header: React.FC = ({ children }) => {
     return <React.Fragment>
@@ -7,13 +8,35 @@ export const Header: React.FC = ({ children }) => {
             <div className={styles.logoLayout}>
                 <div className={styles.logoInnerLayout}>
                     <img src={'/logo.png'} style={{ width: "40px", height: "40px" }} />
-                    <span className={styles.logoInnertext}>TigerGraph Documentation</span>
+                    <span className={styles.logoInnertext}>{space?.name}</span>
                 </div>
             </div>
             <div className={styles.navLayout}>
-                <a target="_blank" rel="noopener noreferrer" href="https://www.tigergraph.com" style={{ color: "#FC6C04", marginRight: "35px" }}>TigerGraph</a>
-                <a target="_blank" rel="noopener noreferrer" href="https://tigergraph.com/download" style={{ color: "#FC6C04", marginRight: "35px" }}>Download</a>
-                <a target="_blank" rel="noopener noreferrer" href="https://app.gitbook.com/@tigergraph/s/document/release-notes-change-log" style={{ color: "#FC6C04", marginRight: "35px" }}>ALERT: IE and Edge browsers</a>
+                {
+                    space?.links?.map(link => {
+                        if (!!link.pageID) {
+                            return <Link
+                                rel="noopener noreferrer"
+                                to={link.pageID}
+                                style={{
+                                    color: "#FC6C04",
+                                    marginRight: "35px"
+                                }}>
+                                {link.title}
+                            </Link>
+                        }
+                        return <a
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href={link.href}
+                            style={{
+                                color: "#FC6C04",
+                                marginRight: "35px"
+                            }}>
+                            {link.title}
+                        </a>
+                    })
+                }
             </div>
         </div>
         {children}

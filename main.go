@@ -294,7 +294,9 @@ func makeAppRoot() {
 	import 'katex/dist/katex.min.css';
     %v
 	const reversion = require('./revision.json');
+	const space = require('./space.json');
     (window as any)['reversion'] = reversion;
+    (window as any)['space'] = space;
     (window as any)['whiteList'] = "%v";
     
 	// versions

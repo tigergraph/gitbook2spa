@@ -8,11 +8,21 @@ declare const dracula: any;
 declare const KaTeX: any;
 declare const katex: any;
 declare const reversion: ReVersion;
+declare const space: Space;
 declare module 'react-katex';
 declare module '@ant-design/icons';
 declare module 'react-code-blocks';
 declare module '*.css';
 declare module '*.json';
+
+declare type Space = {
+    name: string;
+    links: Array<{
+        title: string;
+        href: string;
+        pageID: string;
+    }>
+}
 
 declare type Pages = Array<VersionInfo>
 declare type VersionInfo = {
