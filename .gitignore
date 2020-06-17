@@ -2,3 +2,4 @@ exec/
 .vscode
 build_temp/
 *.zip
+release/
