@@ -7,8 +7,9 @@ This tool is used to convert Gitbook exported data into a React SPA project
 ## Usage
 
 ### Install Dependencies:
-    - [Node JS](https://nodejs.org/)
-    - [Yarn](https://yarnpkg.com/)
+
+- [Node JS](https://nodejs.org/)
+- [Yarn](https://yarnpkg.com/)
 
 ### Build
 
