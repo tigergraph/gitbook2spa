@@ -1,14 +1,12 @@
->##  此库可用来将gitbook线上导出的数据转换成SPA Web
+# Gitbook to SPA
 
-# 如何使用？
+## Introduction
 
-### 1. `cd ./react-project-template && yarn && ../` 到前端的构建目录初始化依赖模块  
+This tool is used to convert Gitbook exported data into a React SPA project
 
-### 2. `make exec/parser` 编译golang的可执行文件，它将用来解析zip中的json，至tsx语法  
+## Usage
 
-### 3. `make build ZIP=压缩包路径 DIR=目标路径 WHITE=可选版本白名单,最后将只生成此白名单下的版本 DEFAULT=默认版本` 构建SPA Web  
-
-Ps: Makefile 项目根目录下执行
+Check makefile for more details
 
 # 如何工作的？
 此项目主要分为两部分,`根目录`下的Golang部分与`react-project-template`目录下的JavaScript部分  
