@@ -1,8 +1,4 @@
-node_modules/
-dist
-source
-zip
-exec
-build
+exec/
 .vscode
-.DS_Store
+build_temp/
+*.zip

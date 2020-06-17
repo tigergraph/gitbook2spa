@@ -37,13 +37,13 @@ func WriteFile(filename string, content string) bool {
 	return true
 }
 
-// GetOnlyName gets the basename of a path and remove the extension
-func GetOnlyName(fpath string) string {
+// GetBasenamePrefix gets the basename of a path and remove the extension
+func GetBasenamePrefix(fpath string) string {
 	fullFilename := fpath
 	filenameWithSuffix := path.Base(fullFilename)
 	fileSuffix := path.Ext(filenameWithSuffix)
-	filenameOnly := strings.TrimSuffix(filenameWithSuffix, fileSuffix)
-	return filenameOnly
+	basenamePrefix := strings.TrimSuffix(filenameWithSuffix, fileSuffix)
+	return basenamePrefix
 }
 
 const (

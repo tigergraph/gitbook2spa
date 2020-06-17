@@ -5,10 +5,12 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/cheggaaa/pb/v3"
+	log "github.com/sirupsen/logrus"
 )
 
 type Config struct {
@@ -101,32 +103,36 @@ func main() {
 	makeHtmlTemplate()
 }
 
-// 解压待处理文件
+// unzipSourceFiles decompress the zip file
 func unzipSourceFiles(fileName string) {
-	Unzip(cfg.ZipFile, task.SrcPath)
+	log.Printf("unzip %v to %v", cfg.ZipFile, task.SrcPath)
+	_, err := Unzip(cfg.ZipFile, task.SrcPath)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // 生成依赖文件的映射关系
 func makeAssetsPath() {
-	pathJson := map[string]AssetsInfo{}
+	log.Infof("moving assets from %v", task.SrcPath)
+	pathJSON := map[string]AssetsInfo{}
 
 	WalkDir(filepath.Join(task.SrcPath, "assets"), func(filePath string, filename string) {
 		fileName := filename
 		file, _ := os.Stat(filePath)
-		fmt.Println(file.Name())
-		pathJson[fileName] = AssetsInfo{
+		pathJSON[fileName] = AssetsInfo{
 			Size: file.Size(),
 			Name: file.Name(),
 		}
 	})
 
-	marshalpathJson, _ := json.Marshal(pathJson)
-	pathJsonStr := string(marshalpathJson)
+	marshalpathJSON, _ := json.Marshal(pathJSON)
+	pathJSONStr := string(marshalpathJSON)
 
-	WriteFile(filepath.Join(task.SrcPath, "assets.js"), "module.exports = "+pathJsonStr)
+	WriteFile(filepath.Join(task.SrcPath, "assets.js"), "module.exports = "+pathJSONStr)
 }
 
-// 将json转为tsx的入口函数
+// json2tsx generates typescripts for react project based on the JSON files
 func json2tsx() {
 	originDirPath := filepath.Join(task.SrcPath, "versions")
 	targetDirPath := filepath.Join(task.SrcPath, "versions")
@@ -153,21 +159,19 @@ func formatTargetVersion(versionPath string, targetDir string) {
 	if err != nil {
 		log.Fatal(err, versionPath)
 	}
+	log.Infof("converting json into typescript files for: %v", versionPath)
+	bar := pb.StartNew(len(fileinfoList))
+	defer bar.Finish()
 	for i := range fileinfoList {
 		fileName := fileinfoList[i].Name()
-		version := strings.Split(versionPath, "/")
-		parseJSON(filepath.Join(versionPath, fileName), targetDir, version[len(version)-1])
-	}
-}
-
-// 解析json,并在指定目录生成对应的.html/.tsx
-func parseJSON(jsonPath string, targetPath string, version string) {
-	onlyFileName := GetOnlyName(jsonPath)
-	if WriteFile(filepath.Join(targetPath, onlyFileName+".tsx"), makeTSX(jsonPath)) {
-		os.Remove(jsonPath)
-		fmt.Println(onlyFileName, "tsx created")
-	} else {
-		fmt.Println(onlyFileName, "tsx creation failed")
+		jsonPath := filepath.Join(versionPath, fileName)
+		basenamePrefix := GetBasenamePrefix(jsonPath)
+		if WriteFile(filepath.Join(targetDir, basenamePrefix+".tsx"), makeTSX(jsonPath)) {
+			os.Remove(jsonPath)
+		} else {
+			log.Warn(basenamePrefix, ".tsx creation failed")
+		}
+		bar.Increment()
 	}
 }
 
@@ -344,7 +348,7 @@ func makeVersionRoot(version string) {
 
 		pagesList = append(pagesList, PageRouteInfo{
 			Component:  fmt.Sprintf(`Page_%v`, i),
-			ImportPath: fmt.Sprintf(`import Page_%v from './%v';`, i, GetOnlyName(name)),
+			ImportPath: fmt.Sprintf(`import Page_%v from './%v';`, i, GetBasenamePrefix(name)),
 			PagePath:   _path,
 			PageUid:    targetUid,
 		})

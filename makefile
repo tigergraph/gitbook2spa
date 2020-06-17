@@ -1,16 +1,20 @@
+build_dir=build_temp
 
-.PHONY: clean
+.PHONY: clean exec/parser build release
 
 exec/parser:
 	go build -o $@
 
 clean:
-	rm -rf exec
+	rm -rf exec $(build_dir)
 
-build:
-	./exec/parser -zip ${ZIP} -dir ${DIR} -white ${WHITE} -default ${DEFAULT}
-	cd ${DIR}/source && yarn prod
+$(build_dir):
+	mkdir $@
 
-dev:
-	./exec/parser -zip ${ZIP} -dir ${DIR} -white ${WHITE} -default ${DEFAULT}
-	cd ${DIR}/source && yarn dev
+build: exec/parser $(build_dir)
+	./exec/parser -zip ${ZIP} -dir ./$(build_dir) -white ${WHITE} -default ${DEFAULT}
+	cd $(build_dir)/source && yarn && yarn prod
+
+release: exec/parser $(build_dir)
+	./exec/parser -zip gitbook.zip -dir ./$(build_dir) -white 2.2,2.3,2.4,2.5,2.6,3.0 -default 2.6
+	cd $(build_dir)/source && yarn && yarn prod
