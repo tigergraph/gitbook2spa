@@ -20,10 +20,7 @@ jobs:
       - name: Install Selenium and Webdriver Manager
         run: sudo python3 -m pip install -U selenium webdriver_manager
       - name: Download Exported Data
-        run: python3 ./tools/export_gitbook.py --headless \
-          --user ${{ env.GITBOOK_USER}} \
-          --password ${{ secrets.GITBOOK_PASSWORD }} \
-          --target ./gitbook.zip
+        run: python3 ./tools/export_gitbook.py --headless --user ${{ env.GITBOOK_USER}} --password ${{ secrets.GITBOOK_PASSWORD }} --target ./gitbook.zip
 
       - name: Setup Node
         uses: actions/setup-node@v1
