@@ -1,0 +1,40 @@
+name: TigerGraph Cloud Team
+
+env:
+  GITBOOK_USER: gst+gitbookbot@tigergraph.com
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: ["*"]
+
+jobs:
+  build:
+    name: Build Docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Selenium
+        run: sudo python3 -m pip install -U selenium
+      - name: Download Exported Data
+        run: python3 ./tools/export_gitbook.py --user ${{ env.GITBOOK_USER}} --password ${{ secrets.GITBOOK_PASSWORD }} --target ./gitbook.zip
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "13.12.0"
+      - name: Setup YARN
+        run: |
+          curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+          echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+          sudo apt update && sudo apt install yarn
+          sudo apt update && sudo apt install --no-install-recommends yarn
+      - name: Cache Go modules
+        uses: actions/cache@v1
+        env:
+          cache-name: cache-go-modules
+        with:
+          path: ./build_temp/source/node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}
+      - name: Build React Project
+        run: make release/doc
