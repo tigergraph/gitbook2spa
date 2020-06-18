@@ -1,4 +1,4 @@
-name: TigerGraph Cloud Team
+name: Gitbook Offline Renderer
 
 env:
   GITBOOK_USER: gst+gitbookbot@tigergraph.com
