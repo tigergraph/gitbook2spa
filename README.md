@@ -4,6 +4,16 @@
 
 This tool is used to convert Gitbook exported data into a React SPA project
 
+## Docker Image
+
+To serve document locally, simply run:
+
+```
+docker run -p 8080:80 tgexternal/document:latest
+```
+
+Then access from `http://localhost:8080/`
+
 ## Usage
 
 ### Install Dependencies:
