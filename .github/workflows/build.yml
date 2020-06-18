@@ -53,6 +53,6 @@ jobs:
       - name: Push Docker Image
         run: |
           make docker-image
-          docker login -u ${{ env.GITBOOK_USER }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+          docker login -u ${{ env.DOCKERHUB_USER }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
           docker tag document:latest tgexternal/document:latest
           docker push ${{ env.DOCKER_IMAGE_TAG }}
