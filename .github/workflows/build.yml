@@ -17,8 +17,8 @@ jobs:
       - name: Check out code into the source code repository
         uses: actions/checkout@v2
 
-      - name: Install Selenium
-        run: sudo python3 -m pip install -U selenium
+      - name: Install Selenium and Webdriver Manager
+        run: sudo python3 -m pip install -U selenium webdriver_manager
       - name: Download Exported Data
         run: python3 ./tools/export_gitbook.py --user ${{ env.GITBOOK_USER}} --password ${{ secrets.GITBOOK_PASSWORD }} --target ./gitbook.zip
 
