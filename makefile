@@ -28,4 +28,4 @@ release/doc: doc
 	cp -r $(build_dir)/dist $@
 
 docker-image: release/doc release/nginx.conf
-	docker build -f docker/dockerfile ./release -t document
+	docker build -f docker/Dockerfile ./release -t document
