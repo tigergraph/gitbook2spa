@@ -114,7 +114,7 @@ def main():
 	parser.add_argument("--headless", action="store_true", default=False)
 	args = parser.parse_args()
 	logging.basicConfig(level=logging.INFO)
-	dl = Downloader(args.org, args.space, args.user, args.password, '/tmp/gitbook.zip', args.headless)
+	dl = Downloader(args.org, args.space, args.user, args.password, args.target, args.headless)
 	dl.run()
 
 
