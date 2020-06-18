@@ -50,9 +50,12 @@ jobs:
         with:
           path: ~/go
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('go.mod') }}
-      - name: Push Docker Image
+      - name: Build Docker Image
         run: |
           make docker-image
           docker login -u ${{ env.DOCKERHUB_USER }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
-          docker tag document:latest tgexternal/document:latest
+          docker tag document:latest ${{ env.DOCKER_IMAGE_TAG }}
+      - name: Push Docker Image
+        if: ${{ github.event_name == 'schedule' || github.event_name == 'push' }}
+        run: |
           docker push ${{ env.DOCKER_IMAGE_TAG }}
