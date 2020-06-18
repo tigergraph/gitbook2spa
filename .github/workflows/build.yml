@@ -2,12 +2,16 @@ name: Gitbook Offline Renderer
 
 env:
   GITBOOK_USER: gst+gitbookbot@tigergraph.com
+  DOCKERHUB_USER: gstbot
+  DOCKER_IMAGE_TAG: tgexternal/document:latest
 
 on:
   push:
     branches: [master]
   pull_request:
     branches: ["*"]
+  schedule:
+    - cron: "0 0 * * *" # update every day
 
 jobs:
   build:
@@ -32,12 +36,23 @@ jobs:
           echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
           sudo apt update && sudo apt install yarn
           sudo apt update && sudo apt install --no-install-recommends yarn
-      - name: Cache Go modules
+      - name: Cache node_modules
+        uses: actions/cache@v1
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ./build_temp/source/node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}
+      - name: Cache Go Modules
         uses: actions/cache@v1
         env:
           cache-name: cache-go-modules
         with:
-          path: ./build_temp/source/node_modules
-          key: ${{ runner.os }}-build-${{ env.cache-name }}
-      - name: Build React Project
-        run: make release/doc
+          path: ~/go
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('go.mod') }}
+      - name: Push Docker Image
+        run: |
+          make docker-image
+          docker login -u ${{ env.GITBOOK_USER }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+          docker tag document:latest tgexternal/document:latest
+          docker push ${{ env.DOCKER_IMAGE_TAG }}
