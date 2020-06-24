@@ -1,5 +1,12 @@
-exec/
+# IDE
 .vscode
+/.idea
+
+# dependency
+/react-project-template/node_modules
+
+# temp build files
+exec/
 build_temp/
 *.zip
 release/

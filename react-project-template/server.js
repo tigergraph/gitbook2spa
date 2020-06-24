@@ -3,12 +3,11 @@ const fs = require('fs')
 const path = require('path')
 const app = express()
 const port = 3000
-const sourcePath = path.join(__dirname, '../dist')
-app.use(express.static('.'));
+const distPath = '../dist';
+app.use(express.static(distPath));
 
 app.use(`/`, (req, res) => {
-    res.sendFile(`${sourcePath}/index.html`)
+    res.sendFile(path.join(__dirname, `${distPath}/index.html`));
 })
-
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
