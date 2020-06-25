@@ -3,6 +3,26 @@ import { OnHover } from '@lib/OnHover.tsx'
 import { RightOutlined, DownOutlined } from '@ant-design/icons'
 import { useHistory, useLocation } from 'react-router-dom'
 
+const styles: Record<
+  'stickyColWrapper' | 'stickyColWithoutScrollbar'
+  , React.CSSProperties> = {
+    stickyColWrapper: {
+        position: "sticky",
+        top: 0,
+        height: "100%",
+        minWidth: "355px",
+        overflow: "hidden",
+    },
+    stickyColWithoutScrollbar: {
+        width: "100%",
+        height: "100%",
+        maxHeight: "100vh",
+        boxSizing: "content-box", // use `content-box` to exclude the right padding of child's width
+        padding: "20px 20px 0 0", // the right padding 20px is used to hide the scrollbar
+        overflow: "hidden auto",
+    }
+};
+
 const getParentPath = (pages: Pages, targetUid: string): string | undefined => {
     for (let i = 0; i < pages?.length; i++) {
         const page = pages[i]
@@ -72,21 +92,26 @@ export const getVersionPage = (pathName?: string): {
 
 export const Sider: React.FC = ({ children }) => {
     const versionList = Object.keys(reversion.versions).filter(v => !!whiteList.split(',').includes(v))
+    const history = useHistory();
     const location = useLocation();
+
     const versionName = getVersionPage(location.pathname)?.version!
     const pageRoutes = reversion.versions[versionName]?.page;
     const anchorLinks = React.useRef<HTMLCollectionOf<Element>>(document.getElementsByClassName("heading-anchor-link"));
     const [loading, setLoading] = React.useState(true);
     const [showVersion, setShowVersion] = React.useState(false);
-    const [toTop, setToTop] = React.useState(0);
-
-    const dispatchWidnowEvent = () => {
-        const evt: any = window.document.createEvent('UIEvents');
-        evt.initUIEvent('scroll', true, false, window, 0);
-        window.dispatchEvent(evt);
-    }
 
     const currentVersionItem = versionList.filter(v => getVersionPage(location.pathname)?.version === v)?.[0]
+
+    React.useEffect(() => {
+        const unlisten = history.listen(() => {
+            // Scroll to the position under header to prevent side nav from resetting position
+            window.scrollTo(0, 80);
+        });
+        return () => {
+            unlisten();
+        }
+    }, []);
 
     React.useEffect(() => {
         if (loading) {
@@ -95,117 +120,142 @@ export const Sider: React.FC = ({ children }) => {
         }
     }, [loading])
 
-    React.useEffect(() => {
-        window.addEventListener("scroll", (event: any) => {
-            const scrollTop = (event.srcElement ? event?.srcElement?.documentElement?.scrollTop : false)
-                || window?.pageYOffset
-                || (event?.srcElement ? event?.srcElement?.body?.scrollTop : 0);
+    return (
+        <div
+          className="main-container"
+          style={{
+              position: "relative",
+              display: "flex",
+              height: "100%",
+              justifyContent: "center",
+          }}>
+            <div
+              className="left-gray-bg"
+              style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  height: "100%",
+                  width: "calc((100% - 1560px) / 2)",
+                  backgroundColor: "#F5F7F9",
+                  zIndex: -1
+              }}
+            />
 
-            setToTop(scrollTop)
-        })
-
-        return () => window.removeEventListener("scroll", () => { })
-    }, [])
-
-    return <div style={{ height: "100%", display: "flex", flexDirection: "row" }}>
-        <div style={{ minWidth: "340px", zIndex: 999 }}>
-            <div style={{
-                minWidth: "340px",
-                height: "100%",
-                backgroundColor: "#F5F7F9",
-                width: "280px",
-                paddingTop: "20px",
-                borderRight: "1px solid #E6ECF1",
-                overflowY: "auto",
-                overflowX: "hidden",
-                ...(toTop > 80) ? { position: "fixed", top: 0 } : {}
-            }}>
-                <GroupLayoutUI title={"versions"}>
-                    <IndentLayout>
-                        {
-                            !!currentVersionItem && <SiderItemRenderUI
-                                onPress={() => setShowVersion(!showVersion)}
-                                title={currentVersionItem}
-                                path={""}
-                                kind={""}
-                                href={""}
-                                onSelected={false}
-                                hasChildren={true}
-                                onOpen={showVersion}
+            <div
+              className="main"
+              style={{
+                  display: "flex",
+                  height: "100%",
+                  width: "100%",
+                  maxWidth: "1560px",
+                  margin: "0 auto",
+              }}
+            >
+                <div
+                  className="side-nav"
+                  style={styles.stickyColWrapper}
+                >
+                    <div style={{
+                        ...styles.stickyColWithoutScrollbar,
+                        backgroundColor: "#F5F7F9",
+                        borderRight: "1px solid #E6ECF1"
+                    }}>
+                        <GroupLayoutUI title={"versions"}>
+                            <IndentLayout>
+                                {
+                                    !!currentVersionItem && <SiderItemRenderUI
+                                      onPress={() => setShowVersion(!showVersion)}
+                                      title={currentVersionItem}
+                                      path={""}
+                                      kind={""}
+                                      href={""}
+                                      onSelected={false}
+                                      hasChildren={true}
+                                      onOpen={showVersion}
+                                    />
+                                }
+                                {
+                                    showVersion && versionList.map((v, idx) => {
+                                        return <SiderItemRenderUI
+                                          key={idx}
+                                          title={v}
+                                          path={`/${v}/${reversion.versions[v]?.page?.uid}`}
+                                          kind={reversion.versions[v]?.page?.kind}
+                                          href={reversion.versions[v]?.page?.href}
+                                          onSelected={getVersionPage(location.pathname)?.version === v}
+                                        />
+                                    })
+                                }
+                            </IndentLayout>
+                        </GroupLayoutUI>
+                        {/* document index */}
+                        <IndentLayout>
+                            <SiderItemRenderUI
+                              kind={pageRoutes?.kind}
+                              href={pageRoutes?.href}
+                              title={pageRoutes?.title}
+                              path={`/${pageRoutes?.uid}`}
                             />
-                        }
+                        </IndentLayout>
+                        {renderSider(pageRoutes?.pages)}
+                    </div>
+                </div>
+
+                <div
+                  className="content"
+                  style={{
+                      flex: 1
+                  }}
+                >
+                    {children}
+                </div>
+
+                <div
+                  className="table-of-content"
+                  style={styles.stickyColWrapper}
+                >
+                    <div style={{
+                        ...styles.stickyColWithoutScrollbar,
+                        borderLeft: "1px solid #E6ECF1",
+                        paddingTop: "40px",
+                    }}>
                         {
-                            showVersion && versionList.map((v, idx) => {
-                                return <SiderItemRenderUI
-                                    key={idx}
-                                    title={v}
-                                    path={`/${v}/${reversion.versions[v]?.page?.uid}`}
-                                    kind={reversion.versions[v]?.page?.kind}
-                                    href={reversion.versions[v]?.page?.href}
-                                    onSelected={getVersionPage(location.pathname)?.version === v}
-                                />
+                            Array.from(anchorLinks.current).map(ele => {
+                                const level = (ele as any).dataset.level
+                                const href = `#${(ele.textContent || "").toLowerCase().replace(/\s+|\./g, "_")}`
+                                const onSelect = location.hash === href
+                                switch (level) {
+                                    case 'one':
+                                        return <OnHover>
+                                            {(isEnter: boolean) => {
+                                                return <div style={{ marginBottom: "8px", padding: onSelect ? "4px 16px 4px 22px" : "4px 16px 4px 24px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+                                                    <a href={href} style={{ color: (isEnter || onSelect) ? "rgb(252, 108, 4)" : "rgb(116, 129, 141)", textDecoration: "none", fontSize: '15px', lineHeight: "15px" }}>
+                                                        {ele.textContent}
+                                                    </a>
+                                                </div>
+                                            }}
+                                        </OnHover>
+                                    case 'two':
+                                        return <OnHover>
+                                            {(isEnter: boolean) => {
+                                                return <div style={{ marginBottom: "8px", padding: onSelect ? "4px 16px 4px 38px" : "4px 16px 4px 40px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+                                                    <a href={href} style={{ color: (isEnter || onSelect) ? "rgb(252, 108, 4)" : "rgb(116, 129, 141)", textDecoration: "none", fontSize: '12px', lineHeight: "18px" }}>
+                                                        {ele.textContent}
+                                                    </a>
+                                                </div>
+                                            }}
+                                        </OnHover>
+                                    default:
+                                        return null
+                                }
                             })
                         }
-                    </IndentLayout>
-                </GroupLayoutUI>
-                {/* document index */}
-                <IndentLayout>
-                    <SiderItemRenderUI
-                        kind={pageRoutes?.kind}
-                        href={pageRoutes?.href}
-                        title={pageRoutes?.title}
-                        path={`/${pageRoutes?.uid}`}
-                    />
-                </IndentLayout>
-                {renderSider(pageRoutes?.pages)}
+                    </div>
+                </div>
             </div>
         </div>
-        {children}
-        <div style={{ height: "100%", minWidth: "340px" }}>
-            <div style={{
-                borderLeft: "1px solid #E6ECF1",
-                minWidth: "340px",
-                paddingTop: "40px",
-                overflowY: "auto",
-                overflowX: "hidden",
-                height: "100%",
-                zIndex: 999,
-                ...(toTop > 80) ? { position: "fixed", top: 0 } : {},
-            }}>
-                {
-                    Array.from(anchorLinks.current).map(ele => {
-                        const level = (ele as any).dataset.level
-                        const href = `#${(ele.textContent || "").toLowerCase().replace(/\s+|\./g, "_")}`
-                        const onSelect = location.hash === href
-                        switch (level) {
-                            case 'one':
-                                return <OnHover>
-                                    {isEnter => {
-                                        return <div style={{ marginBottom: "8px", padding: onSelect ? "4px 16px 4px 22px" : "4px 16px 4px 24px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none" }}>
-                                            <a onClick={() => dispatchWidnowEvent()} href={href} style={{ color: (isEnter || onSelect) ? "rgb(252, 108, 4)" : "rgb(116, 129, 141)", textDecoration: "none", fontSize: '15px', lineHeight: "15px" }}>
-                                                {ele.textContent}
-                                            </a>
-                                        </div>
-                                    }}
-                                </OnHover>
-                            case 'two':
-                                return <OnHover>
-                                    {isEnter => {
-                                        return <div style={{ marginBottom: "8px", padding: onSelect ? "4px 16px 4px 38px" : "4px 16px 4px 40px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none" }}>
-                                            <a onClick={() => dispatchWidnowEvent()} href={href} style={{ color: (isEnter || onSelect) ? "rgb(252, 108, 4)" : "rgb(116, 129, 141)", textDecoration: "none", fontSize: '12px', lineHeight: "18px" }}>
-                                                {ele.textContent}
-                                            </a>
-                                        </div>
-                                    }}
-                                </OnHover>
-                            default:
-                                return null
-                        }
-                    })
-                }
-            </div>
-        </div>
-    </div>
+    )
 }
 
 const renderSider = (pages: Pages = [], isSub?: boolean) => {

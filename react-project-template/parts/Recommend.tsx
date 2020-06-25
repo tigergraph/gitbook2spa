@@ -11,15 +11,12 @@ export const Recommend: React.SFC<Partial<{
     const location = useLocation();
     const uid = getVersionPage(location.pathname)?.uid!
     const versionName = getVersionPage(location.pathname)?.version!
-    const dispatchWidnowEvent = () => {
-        const evt: any = window.document.createEvent('UIEvents');
-        evt.initUIEvent('scroll', true, false, window, 0);
-        window.dispatchEvent(evt);
-    }
     const pageInfo = findPage(uid, versionName, 'uid')
+
     if (!pageInfo?.pages?.length) {
         return null
     }
+
     return <div style={{ paddingTop: "40px" }}>
         <div style={{ color: "#3B454E", fontSize: 16, lineHeight: 1.625, fontFamily: "Content-font, Roboto, sans-serif", marginBottom: "28px" }}>
             Here are the articles in this section:
@@ -31,7 +28,6 @@ export const Recommend: React.SFC<Partial<{
                         span={11}
                         onClick={() => {
                             history.push(childPage.uid)
-                            dispatchWidnowEvent()
                         }}
                         style={{
                             fontSize: '16px',

@@ -4,39 +4,41 @@ import { Link } from 'react-router-dom'
 
 export const Header: React.FC = ({ children }) => {
     return <React.Fragment>
-        <div className={styles.layout}>
-            <div className={styles.logoLayout}>
-                <div className={styles.logoInnerLayout}>
-                    <img src={'/logo.png'} style={{ width: "40px", height: "40px" }} />
-                    <span className={styles.logoInnertext}>{space?.name}</span>
+        <div className={styles.header}>
+            <div className={styles.layout}>
+                <div className={styles.logoLayout}>
+                    <div className={styles.logoInnerLayout}>
+                        <img src={'/logo.png'} style={{ width: "40px", height: "40px" }} />
+                        <span className={styles.logoText}>{space?.name}</span>
+                    </div>
                 </div>
-            </div>
-            <div className={styles.navLayout}>
-                {
-                    space?.links?.map(link => {
-                        if (!!link.pageID) {
-                            return <Link
-                                rel="noopener noreferrer"
-                                to={link.pageID}
-                                style={{
-                                    color: "#FC6C04",
-                                    marginRight: "35px"
-                                }}>
+                <div className={styles.navLayout}>
+                    {
+                        space?.links?.map(link => {
+                            if (!!link.pageID) {
+                                return <Link
+                                  rel="noopener noreferrer"
+                                  to={link.pageID}
+                                  style={{
+                                      color: "#FC6C04",
+                                      marginRight: "35px"
+                                  }}>
+                                    {link.title}
+                                </Link>
+                            }
+                            return <a
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              href={link.href}
+                              style={{
+                                  color: "#FC6C04",
+                                  marginRight: "35px"
+                              }}>
                                 {link.title}
-                            </Link>
-                        }
-                        return <a
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            href={link.href}
-                            style={{
-                                color: "#FC6C04",
-                                marginRight: "35px"
-                            }}>
-                            {link.title}
-                        </a>
-                    })
-                }
+                            </a>
+                        })
+                    }
+                </div>
             </div>
         </div>
         {children}
@@ -44,16 +46,22 @@ export const Header: React.FC = ({ children }) => {
 }
 
 const styles = {
-    layout: style({
-        width: "100%",
-        height: "79px",
+    header: style({
         display: "flex",
-        alignItems: "center",
+        justifyContent: "center",
         borderBottom: "1px solid rgb(212, 218, 223)",
         boxShadow: "0 3px 8px 0 rgba(17, 20, 23, 0.1)",
     }),
+    layout: style({
+        display: "flex",
+        height: "80px",
+        width: "100%",
+        maxWidth: "1560px",
+        margin: "0 auto",
+        alignItems: "center",
+    }),
     logoLayout: style({
-        width: "340px",
+        width: "355px",
         height: "40px",
         display: "flex",
         alignItems: "center",
@@ -67,10 +75,11 @@ const styles = {
         justifyContent: "space-between",
 
     }),
-    logoInnertext: style({
+    logoText: style({
         color: "#242a31",
         fontSize: "17px",
-        fontWeight: 500
+        fontWeight: 500,
+        whiteSpace: "nowrap"
     }),
     navLayout: style({
         paddingLeft: "88px",
