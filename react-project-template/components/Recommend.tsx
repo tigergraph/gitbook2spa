@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { findPage } from '@lib/findPage.ts'
+import { findPage } from '@libs/findPage.ts'
 import { useLocation, useHistory } from 'react-router';
-import { getVersionPage } from '@parts/Sider';
+import { getVersionPage } from '@components/Sider';
 import { Row, Col } from 'antd';
 
 export const Recommend: React.SFC<Partial<{

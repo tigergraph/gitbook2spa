@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { OnHover } from '@lib/OnHover.tsx'
+import { OnHover } from '@libs/OnHover.tsx'
 import { RightOutlined, DownOutlined } from '@ant-design/icons'
 import { useHistory, useLocation } from 'react-router-dom'
 
@@ -18,7 +18,7 @@ const styles: Record<
         height: "100%",
         maxHeight: "100vh",
         boxSizing: "content-box", // use `content-box` to exclude the right padding of child's width
-        padding: "20px 20px 0 0", // the right padding 20px is used to hide the scrollbar
+        paddingRight: "20px", // the right padding 20px is used to hide the scrollbar
         overflow: "hidden auto",
     }
 };
@@ -126,7 +126,6 @@ export const Sider: React.FC = ({ children }) => {
           style={{
               position: "relative",
               display: "flex",
-              height: "100%",
               justifyContent: "center",
           }}>
             <div
@@ -158,6 +157,8 @@ export const Sider: React.FC = ({ children }) => {
                 >
                     <div style={{
                         ...styles.stickyColWithoutScrollbar,
+                        maxHeight: "calc(100vh - 20px)", // minus the top padding 20px
+                        paddingTop: "20px",
                         backgroundColor: "#F5F7F9",
                         borderRight: "1px solid #E6ECF1"
                     }}>
@@ -217,8 +218,9 @@ export const Sider: React.FC = ({ children }) => {
                 >
                     <div style={{
                         ...styles.stickyColWithoutScrollbar,
-                        borderLeft: "1px solid #E6ECF1",
+                        maxHeight: "calc(100vh - 40px)", // minus the top padding 40px
                         paddingTop: "40px",
+                        borderLeft: "1px solid #E6ECF1",
                     }}>
                         {
                             Array.from(anchorLinks.current).map(ele => {

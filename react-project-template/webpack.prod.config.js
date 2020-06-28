@@ -5,7 +5,7 @@ module.exports = {
     devtool: 'none',
     mode: 'production',
     entry: {
-        "bundle": path.resolve(__dirname, "source", "_appRoute.tsx")
+        "bundle": path.resolve(__dirname, "gitbook", "_appRoute.tsx")
     },
     output: {
         path: path.resolve(__dirname, "../dist"),
@@ -21,15 +21,15 @@ module.exports = {
             {
                 test: /\.tsx?$/,
                 use: ['ts-loader'],
+                exclude: /node_modules/
             },
             {
                 test: /\.css$/,
                 loader: "style-loader!css-loader?modules",
-                exclude: /node_modules/,
+                exclude: /node_modules/
             },
             {
                 test: /\.css$/,
-                exclude: /src/,
                 use: [
                     { loader: "style-loader", },
                     {
@@ -47,16 +47,18 @@ module.exports = {
         ]
     },
     optimization: {
-        minimize: false
+        splitChunks: { name: 'vendor', chunks: 'all' }
     },
     resolve: {
         alias: {
-            '@parts': path.resolve(__dirname, 'parts'),
-            '@source': path.resolve(__dirname, 'source'),
-            '@lib': path.resolve(__dirname, 'lib'),
-            '@build': path.resolve(__dirname, 'build'),
+            '@gitbook': path.resolve(__dirname, 'gitbook'),
+            '@components': path.resolve(__dirname, 'components'),
+            '@libs': path.resolve(__dirname, 'libs'),
             '@styles': path.resolve(__dirname, 'styles'),
         },
         extensions: ['.ts', '.tsx', '.js', '.css', '.json']
+    },
+    stats: {
+        colors: true
     }
 }

@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { BlockData } from '.'
-const assets = require('@source/assets')
+const assets = require('@gitbook/assets')
 
 export type ImageType = "image"
 

@@ -1,17 +1,17 @@
 import * as React from 'react';
-import { HeadType, RenderHead } from '@parts/block/Head.tsx';
-import { checkBlockType } from '@lib/checkType.ts';
-import { RenderList, ListType } from '@parts/block/List.tsx';
-import { RenderCode, CodeType } from '@parts/block/Code.tsx';
-import { RenderBlockquote, BlockquoteType } from '@parts/block/Blockquote.tsx';
-import { RenderImage, ImageType } from '@parts/block/Image.tsx';
-import { RenderTable, TableType } from '@parts/block/Table.tsx';
-import { HintType, RenderHint, HintStyle } from '@parts/block/Hint.tsx';
-import { RenderPageRef, PageRefType } from '@parts/block/PageRef.tsx';
-import { RenderApiMethod, ApiMethodType } from '@parts/block/ApiMethod.tsx';
-import { RenderTabs, TabsType } from '@parts/block/Tabs.tsx';
-import { RenderMath, MathType } from '@parts/block/Math.tsx';
-import { RenderFile, FileType } from '@parts/block/File.tsx';
+import { HeadType, RenderHead } from '@components/block/Head.tsx';
+import { checkBlockType } from '@libs/checkType.ts';
+import { RenderList, ListType } from '@components/block/List.tsx';
+import { RenderCode, CodeType } from '@components/block/Code.tsx';
+import { RenderBlockquote, BlockquoteType } from '@components/block/Blockquote.tsx';
+import { RenderImage, ImageType } from '@components/block/Image.tsx';
+import { RenderTable, TableType } from '@components/block/Table.tsx';
+import { HintType, RenderHint, HintStyle } from '@components/block/Hint.tsx';
+import { RenderPageRef, PageRefType } from '@components/block/PageRef.tsx';
+import { RenderApiMethod, ApiMethodType } from '@components/block/ApiMethod.tsx';
+import { RenderTabs, TabsType } from '@components/block/Tabs.tsx';
+import { RenderMath, MathType } from '@components/block/Math.tsx';
+import { RenderFile, FileType } from '@components/block/File.tsx';
 
 type BlockType = "paragraph"
 

@@ -1,11 +1,11 @@
 import * as React from 'react'
 import { BlockData } from '.'
 import { DownloadOutlined } from '@ant-design/icons'
-import { OnHover } from '@lib/OnHover.tsx'
-import { renderFileSize } from '@lib/renderFileSize.ts'
+import { OnHover } from '@libs/OnHover.tsx'
+import { renderFileSize } from '@libs/renderFileSize.ts'
 import { message } from 'antd'
 
-const assets = require('@source/assets')
+const assets = require('@gitbook/assets')
 
 export type FileType = "file"
 

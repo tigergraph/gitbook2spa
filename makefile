@@ -14,11 +14,11 @@ $(build_dir):
 
 build: $(parser) $(build_dir)
 	$(parser) -zip ${ZIP} -dir ./$(build_dir) -white ${WHITE} -default ${DEFAULT}
-	cd $(build_dir)/source && yarn && yarn prod
+	cd $(build_dir)/src && yarn && yarn build
 
 doc: $(parser) $(build_dir)
 	$(parser) -zip gitbook.zip -dir ./$(build_dir) -white 2.2,2.3,2.4,2.5,2.6,3.0 -default 2.6
-	cd $(build_dir)/source && yarn && yarn prod
+	cd $(build_dir)/src && yarn && yarn build
 
 release/nginx.conf:
 	cp docker/nginx.conf $@

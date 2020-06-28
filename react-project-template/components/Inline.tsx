@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { style } from 'typestyle'
-import { findPage } from '@lib/findPage';
+import { findPage } from '@libs/findPage';
 import { InlineMath } from 'react-katex';
 import { useLocation, useHistory } from 'react-router';
 import { getVersionPage } from './Sider';
