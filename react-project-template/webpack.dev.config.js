@@ -7,10 +7,10 @@ module.exports = {
     devtool: "eval",
     mode: "development",
     entry: {
-        "bundle": path.resolve(__dirname, "source", "_appRoute.tsx")
+        "bundle": path.resolve(__dirname, "gitbook", "_appRoute.tsx")
     },
     output: {
-        path: path.resolve(__dirname, "./source"),
+        path: path.resolve(__dirname, "./gitbook"),
         filename: "[name].js"
     },
     plugins: [
@@ -24,7 +24,7 @@ module.exports = {
     ],
     devServer: {
         contentBase: [
-            './source'
+            './gitbook'
         ],
         historyApiFallback: {
             index: './index.html'
@@ -35,15 +35,15 @@ module.exports = {
             {
                 test: /\.tsx?$/,
                 use: ['ts-loader'],
+                exclude: /node_modules/
             },
             {
                 test: /\.css$/,
                 loader: "style-loader!css-loader?modules",
-                exclude: /node_modules/,
+                exclude: /node_modules/
             },
             {
                 test: /\.css$/,
-                exclude: /src/,
                 use: [
                     { loader: "style-loader", },
                     {
@@ -65,12 +65,14 @@ module.exports = {
     },
     resolve: {
         alias: {
-            '@parts': path.resolve(__dirname, 'parts'),
-            '@source': path.resolve(__dirname, 'source'),
-            '@lib': path.resolve(__dirname, 'lib'),
-            '@build': path.resolve(__dirname, 'build'),
+            '@gitbook': path.resolve(__dirname, 'gitbook'),
+            '@components': path.resolve(__dirname, 'components'),
+            '@libs': path.resolve(__dirname, 'libs'),
             '@styles': path.resolve(__dirname, 'styles'),
         },
         extensions: ['.ts', '.tsx', '.js', '.css', '.json']
+    },
+    stats: {
+        colors: true
     }
 }

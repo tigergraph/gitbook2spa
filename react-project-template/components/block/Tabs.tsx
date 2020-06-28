@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { BlockData } from '.'
-import { findChildType } from '@lib/findChildType'
+import { findChildType } from '@libs/findChildType'
 import { style } from 'typestyle';
 import { Tabs } from 'antd';
 

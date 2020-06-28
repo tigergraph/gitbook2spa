@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { BlockData } from '.'
-import { findChildType } from '@lib/findChildType'
+import { findChildType } from '@libs/findChildType'
 import { style } from 'typestyle'
 import { CopyBlock, dracula } from 'react-code-blocks'
 
@@ -51,7 +51,8 @@ export const RenderCode: React.FC<{ type: CodeType; children: any, data?: BlockD
 const CodeBlock: React.FC<{ text: string; language: string }> = ({ text, language }) => {
     return <div style={{
         fontWeight: 100, fontSize: "14px",
-        padding: "12px 24px 24px 8px"
+        padding: "12px 24px 24px 8px",
+        fontFamily: "'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace"
     }} className={style({
         $nest: {
             "button": {

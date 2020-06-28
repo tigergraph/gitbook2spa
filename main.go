@@ -44,7 +44,7 @@ type TaskInfo struct {
 	ZipPath                  string
 	WhiteList                []string
 	Default                  string
-	SrcPath                  string
+	GitBookPath                  string
 	DistPath                 string
 	ReactProjectTemplatePath string
 }
@@ -72,7 +72,7 @@ func (c *Config) TaskInfo() *TaskInfo {
 		ZipPath:                  filepath.Join(c.Workdir, "zip"),
 		WhiteList:                strings.Split(c.WhiteList, ","),
 		Default:                  c.Default,
-		SrcPath:                  filepath.Join(c.Workdir, "source", "source"),
+		GitBookPath:              filepath.Join(c.Workdir, "src", "gitbook"),
 		DistPath:                 filepath.Join(c.Workdir, "dist"),
 		ReactProjectTemplatePath: filepath.Join(c.Workdir, "react-project-template"),
 	}
@@ -95,9 +95,9 @@ func main() {
 	json2tsx()
 	makeAppRoot()
 
-	Copy("react-project-template", filepath.Join(cfg.Workdir, "source"))
+	Copy("react-project-template", filepath.Join(cfg.Workdir, "src"))
 	Copy("static", task.DistPath)
-	Copy(filepath.Join(task.SrcPath, "assets"), filepath.Join(task.DistPath, "assets"))
+	Copy(filepath.Join(task.GitBookPath, "assets"), filepath.Join(task.DistPath, "assets"))
 
 	makeAssetsPath()
 	makeHtmlTemplate()
@@ -105,8 +105,8 @@ func main() {
 
 // unzipSourceFiles decompress the zip file
 func unzipSourceFiles(fileName string) {
-	log.Printf("unzip %v to %v", cfg.ZipFile, task.SrcPath)
-	_, err := Unzip(cfg.ZipFile, task.SrcPath)
+	log.Printf("unzip %v to %v", cfg.ZipFile, task.GitBookPath)
+	_, err := Unzip(cfg.ZipFile, task.GitBookPath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -114,10 +114,10 @@ func unzipSourceFiles(fileName string) {
 
 // 生成依赖文件的映射关系
 func makeAssetsPath() {
-	log.Infof("moving assets from %v", task.SrcPath)
+	log.Infof("moving assets from %v", task.GitBookPath)
 	pathJSON := map[string]AssetsInfo{}
 
-	WalkDir(filepath.Join(task.SrcPath, "assets"), func(filePath string, filename string) {
+	WalkDir(filepath.Join(task.GitBookPath, "assets"), func(filePath string, filename string) {
 		fileName := filename
 		file, _ := os.Stat(filePath)
 		pathJSON[fileName] = AssetsInfo{
@@ -129,13 +129,13 @@ func makeAssetsPath() {
 	marshalpathJSON, _ := json.Marshal(pathJSON)
 	pathJSONStr := string(marshalpathJSON)
 
-	WriteFile(filepath.Join(task.SrcPath, "assets.js"), "module.exports = "+pathJSONStr)
+	WriteFile(filepath.Join(task.GitBookPath, "assets.js"), "module.exports = "+pathJSONStr)
 }
 
 // json2tsx generates typescripts for react project based on the JSON files
 func json2tsx() {
-	originDirPath := filepath.Join(task.SrcPath, "versions")
-	targetDirPath := filepath.Join(task.SrcPath, "versions")
+	originDirPath := filepath.Join(task.GitBookPath, "versions")
+	targetDirPath := filepath.Join(task.GitBookPath, "versions")
 	fileinfoList, err := ioutil.ReadDir(originDirPath)
 
 	if err != nil {
@@ -180,12 +180,12 @@ func makeHtmlTemplate() {
 	template := `
     <!DOCTYPE html>
     <html lang="en">
-    
+
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon">
-        
+
         <style>
             html,
             body {
@@ -208,13 +208,14 @@ func makeHtmlTemplate() {
         </style>
         <title>TigerGraph Documentation</title>
     </head>
-    
+
     <body>
         <div id='root'></div>
-        
+
+        <script type="text/javascript" src='/vendor.js'></script>
         <script type="text/javascript" src='/bundle.js'></script>
     </body>
-    
+
     </html>
 	`
 
@@ -246,8 +247,8 @@ func WalkDir(path string, cb func(filePath string, filename string)) {
 
 // 生成spa的入口文件并且也是一个路由部分，里面包含了各版本目录下的的路由入口文件
 func makeAppRoot() {
-	appRootPath := filepath.Join(task.SrcPath, "_appRoute.tsx")
-	versionDirPath := filepath.Join(task.SrcPath, "versions")
+	appRootPath := filepath.Join(task.GitBookPath, "_appRoute.tsx")
+	versionDirPath := filepath.Join(task.GitBookPath, "versions")
 	versions, _ := ioutil.ReadDir(versionDirPath)
 	versionList := []VersionRouteInfo{}
 
@@ -302,7 +303,7 @@ func makeAppRoot() {
     (window as any)['reversion'] = reversion;
     (window as any)['space'] = space;
     (window as any)['whiteList'] = "%v";
-    
+
 	// versions
     const App = () => {
         return <BrowserRouter>
@@ -322,7 +323,7 @@ func makeAppRoot() {
 // 生成版本目录下的的路由入口文件
 func makeVersionRoot(version string) {
 
-	versionPath := filepath.Join(task.SrcPath, "versions", version)
+	versionPath := filepath.Join(task.GitBookPath, "versions", version)
 	versionRootPath := filepath.Join(versionPath, "_versionRoute.tsx")
 	pages, _ := ioutil.ReadDir(versionPath)
 
@@ -330,7 +331,7 @@ func makeVersionRoot(version string) {
 
 	for i, v := range pages {
 		name := filepath.Base(v.Name())
-		revisionJSON, _ := ioutil.ReadFile(filepath.Join(task.SrcPath, "revision.json"))
+		revisionJSON, _ := ioutil.ReadFile(filepath.Join(task.GitBookPath, "revision.json"))
 		targetUid := strings.Replace(name, ".tsx", "", 1)
 		revision := Revision{}
 		json.Unmarshal(revisionJSON, &revision)
@@ -370,7 +371,7 @@ func makeVersionRoot(version string) {
 	import * as React from 'react'
 	import { Route, withRouter, Redirect, Switch } from 'react-router';
 	%v
-	
+
 	export default withRouter(props => {
 		return <Switch>
 			%v

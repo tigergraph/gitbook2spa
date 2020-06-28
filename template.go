@@ -5,7 +5,7 @@ func RenderHTMLTemplate(bundleName string, versionName string) string {
 	return `
 	<!DOCTYPE html>
 	<html lang="en">
-	
+
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -43,12 +43,12 @@ func RenderHTMLTemplate(bundleName string, versionName string) string {
 		</style>
 		<title>Document</title>
 	</head>
-	
+
 	<body>
 		<div id='app'></div>
 		<script type="text/javascript" src="./` + bundleName + `.js"></script>
 	</body>
-	
+
 	</html>
 	`
 }
@@ -59,14 +59,14 @@ func RenderTsxTemplate(dom string) string {
 	import * as React from 'react';
 	import * as ReactDom from 'react-dom';
 
-	// MarkDown render parts
-	import { Document } from '@parts/Document.tsx';
-	import { Block } from '@parts/block/index.tsx';
-	import { Text } from '@parts/Text.tsx';
-	import { Inline } from '@parts/Inline.tsx';
-	import { Sider } from '@parts/Sider.tsx';
-	import { Header } from '@parts/Header.tsx';
-	import { Recommend } from '@parts/Recommend.tsx';
+	// MarkDown render components
+	import { Document } from '@components/Document.tsx';
+	import { Block } from '@components/block/index.tsx';
+	import { Text } from '@components/Text.tsx';
+	import { Inline } from '@components/Inline.tsx';
+	import { Sider } from '@components/Sider.tsx';
+	import { Header } from '@components/Header.tsx';
+	import { Recommend } from '@components/Recommend.tsx';
 
 	export default () => <Header><Sider>` + dom + `</Sider></Header>
 	`

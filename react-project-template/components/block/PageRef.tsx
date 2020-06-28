@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { BlockData } from '.'
-import { OnHover } from '@lib/OnHover.tsx'
-import { findPage } from '@lib/findPage.ts'
+import { OnHover } from '@libs/OnHover.tsx'
+import { findPage } from '@libs/findPage.ts'
 import { ArrowRightOutlined } from '@ant-design/icons'
 import { useLocation, useHistory } from 'react-router'
-import { getVersionPage } from '@parts/Sider'
+import { getVersionPage } from '@components/Sider'
 
 export type PageRefType = "page-ref"
 

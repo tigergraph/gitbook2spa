@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { mergeClassName } from '@lib/mergeClassName';
+import { mergeClassName } from '@libs/mergeClassName';
 import { style } from 'typestyle';
 
 type MarkTypes = "italic" | "bold" | "strikethrough" | "code"

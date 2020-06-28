@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { findPage } from '@lib/findPage.ts'
+import { findPage } from '@libs/findPage.ts'
 import { useLocation } from 'react-router';
-import { getVersionPage } from '@parts/Sider';
+import { getVersionPage } from '@components/Sider';
 
 export const Document: React.SFC<Partial<{
     type: string
@@ -24,7 +24,7 @@ export const Document: React.SFC<Partial<{
                 return React.Children.map(props.children, (child: any, idx) => {
                     if (child?.props?.type === 'heading-1' && idx === 0) {
                         const child = (props?.children as any)?.[0]
-                        if (!child) { 
+                        if (!child) {
                             return null;
                         }
 
