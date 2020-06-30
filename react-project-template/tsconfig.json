@@ -4,6 +4,10 @@
         "module": "commonjs",
         "strict": true,
         "jsx": "react",
+        "lib": [
+            "es2018",
+            "dom"
+        ],
         "baseUrl": "./",
         "paths": {
             "@gitbook/*": [

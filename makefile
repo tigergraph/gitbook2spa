@@ -17,7 +17,7 @@ build: $(parser) $(build_dir)
 	cd $(build_dir)/src && yarn && yarn build
 
 doc: $(parser) $(build_dir)
-	$(parser) -zip gitbook.zip -dir ./$(build_dir) -white 2.2,2.3,2.4,2.5,2.6,3.0 -default 2.6
+	$(parser) -zip gitbook.zip -dir ./$(build_dir) -white 2.2.0,2.3,2.4,2.5,2.6,3.0 -default 2.6
 	cd $(build_dir)/src && yarn && yarn build
 
 release/nginx.conf:

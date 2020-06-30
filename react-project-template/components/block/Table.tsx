@@ -42,7 +42,7 @@ export const RenderTable: React.FC<{
                 }
             </Row>
         case 'table-cell':
-            return <div style={{ padding: "8px", wordBreak: "break-all" }} className={styles.clearPTagStyle}>
+            return <div style={{ padding: "8px", wordBreak: "break-word" }} className={styles.clearPTagStyle}>
                 {children}
             </div>
         default:

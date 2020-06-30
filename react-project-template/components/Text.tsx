@@ -70,7 +70,7 @@ const styles = {
         fontStyle: "italic",
     }),
     textTypeBold: style({
-        fontWeight: 700,
+        fontWeight: 500,
     }),
     textTypeStrikethrough: style({
         textDecoration: 'line-through',

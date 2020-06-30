@@ -297,6 +297,7 @@ func makeAppRoot() {
     import { BrowserRouter } from 'react-router-dom';
 	import 'antd/dist/antd.css';
 	import 'katex/dist/katex.min.css';
+	import '../styles/global.css';
     %v
 	const reversion = require('./revision.json');
 	const space = require('./space.json');

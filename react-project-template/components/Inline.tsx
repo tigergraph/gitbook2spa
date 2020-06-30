@@ -60,7 +60,7 @@ const renderLinkContainer = (data?: LinkData, child?: JSX.Element) => {
             color: "rgb(252, 108, 4)",
             position: "relative",
             textDecorationLine: showUnderLine ? "underline" : undefined,
-            wordBreak: "break-all"
+            wordBreak: "break-word"
         }}
         onClick={() => {
             const pageInfo = findPage(data?.pageID!, versionName)
