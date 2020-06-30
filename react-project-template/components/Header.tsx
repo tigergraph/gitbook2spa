@@ -48,20 +48,22 @@ export const Header: React.FC = ({ children }) => {
 const styles = {
     header: style({
         display: "flex",
+        position: "relative",
         justifyContent: "center",
         borderBottom: "1px solid rgb(212, 218, 223)",
         boxShadow: "0 3px 8px 0 rgba(17, 20, 23, 0.1)",
+        zIndex: 20
     }),
     layout: style({
         display: "flex",
         height: "80px",
         width: "100%",
-        maxWidth: "1560px",
+        maxWidth: "1448px",
         margin: "0 auto",
         alignItems: "center",
     }),
     logoLayout: style({
-        width: "355px",
+        width: "298px",
         height: "40px",
         display: "flex",
         alignItems: "center",
@@ -78,13 +80,13 @@ const styles = {
     logoText: style({
         color: "#242a31",
         fontSize: "17px",
-        fontWeight: 500,
+        fontWeight: 400,
         whiteSpace: "nowrap"
     }),
     navLayout: style({
         paddingLeft: "88px",
         color: "#FC6C04",
-        fontWeight: "bolder",
+        fontWeight: 400,
         fontSize: "16px"
     })
 }

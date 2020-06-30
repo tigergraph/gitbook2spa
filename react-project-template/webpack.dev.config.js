@@ -39,20 +39,25 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                loader: "style-loader!css-loader?modules",
-                exclude: /node_modules/
+                use: [
+                    'style-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            importLoaders: 1,
+                            modules: true
+                        }
+                    }
+                ],
+                include: /\.module\.css$/ // for css modules
             },
             {
                 test: /\.css$/,
                 use: [
-                    { loader: "style-loader", },
-                    {
-                        loader: "css-loader",
-                        options: {
-                            importLoaders: 1
-                        }
-                    }
-                ]
+                    'style-loader',
+                    'css-loader'
+                ],
+                exclude: /\.module\.css$/ // for global css
             },
             {
                 test: /\.(eot|woff2?|ttf|svg)$/,

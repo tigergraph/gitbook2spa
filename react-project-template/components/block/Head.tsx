@@ -11,7 +11,7 @@ export const RenderHead: React.FC<{ type: HeadType, data?: BlockData }> = ({ typ
             return <h1 className={"heading-anchor-link"} data-level={"one"} id={text} style={{
                 fontSize: "24px",
                 color: "#242A31",
-                fontWeight: 700,
+                fontWeight: 500,
                 lineHeight: 1.5,
                 padding: data?.isFirstEle ? '0px 0px 24px' : "24px 0",
                 borderTop: data?.isFirstEle ? 'none' : "1px solid #E6ECF1",
@@ -20,11 +20,11 @@ export const RenderHead: React.FC<{ type: HeadType, data?: BlockData }> = ({ typ
                 {children}
             </h1>
         case "heading-2":
-            return <h2 className={"heading-anchor-link"} data-level={"two"} id={text} style={{ paddingBottom: "12px", fontSize: "20px", fontWeight: 700 }}>
+            return <h2 className={"heading-anchor-link"} data-level={"two"} id={text} style={{ paddingBottom: "12px", fontSize: "20px", fontWeight: 500 }}>
                 {children}
             </h2>
         case "heading-3":
-            return <h3 style={{ paddingBottom: "12px", fontSize: "16px", fontWeight: 700 }}>
+            return <h3 style={{ paddingBottom: "12px", fontSize: "16px", fontWeight: 500 }}>
                 {children}
             </h3>
         default:

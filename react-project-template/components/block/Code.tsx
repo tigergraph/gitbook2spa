@@ -26,7 +26,7 @@ export const RenderCode: React.FC<{ type: CodeType; children: any, data?: BlockD
                     codeContent += Array.isArray(t) ? t?.join?.("") : t || ""
 
                     return <React.Fragment key={idx}>
-                        {title && <div style={{ fontWeight: 700, fontSize: "14px", paddingTop: "12px" }}>{title}</div>}
+                        {title && <div style={{ fontWeight: 500, fontSize: "14px", paddingTop: "12px" }}>{title}</div>}
                         <CodeBlock key={idx} text={codeContent} language={child?.props?.data?.syntax || ""} />
                     </React.Fragment>
                 })}

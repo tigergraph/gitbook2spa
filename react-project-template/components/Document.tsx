@@ -15,7 +15,7 @@ export const Document: React.SFC<Partial<{
     }, [])
     return <div style={styles.layout}>
         <div style={{ marginBottom: "32px", padding: "40px 0", borderBottom: "2px solid rgb(230, 236, 241)" }}>
-            <h1 style={styles.title}>{findPage(uid, versionName, 'uid')?.title || "我是固定的标题"}</h1>
+            <h1 style={styles.title}>{findPage(uid, versionName, 'uid')?.title || "Page Title"}</h1>
             {findPage(uid, versionName, 'uid')?.description && <div style={styles.desc}>{findPage(uid, versionName, 'uid')?.description}</div>}
         </div>
         {
@@ -44,18 +44,16 @@ export const Document: React.SFC<Partial<{
 }
 
 const styles: Record<
-    'layout' | 'title' | 'desc'
-    , React.CSSProperties> = {
+  'layout' | 'title' | 'desc'
+  , React.CSSProperties> = {
     layout: {
-        backgroundColor: "whtie",
-        padding: "0 88px",
-        width: "100%",
-        maxWidth: "926px",
+        backgroundColor: "#fff",
+        width: "750px",
         fontSize: "16px",
     },
     title: {
         fontSize: "32px",
-        fontWeight: 700,
+        fontWeight: 500,
         lineHeight: 1.5,
         color: "#242a31",
         marginBottom: 0
