@@ -52,13 +52,14 @@ const styles = {
         justifyContent: "center",
         borderBottom: "1px solid rgb(212, 218, 223)",
         boxShadow: "0 3px 8px 0 rgba(17, 20, 23, 0.1)",
+        minWidth: "1522px",
         zIndex: 20
     }),
     layout: style({
         display: "flex",
         height: "80px",
         width: "100%",
-        maxWidth: "1448px",
+        maxWidth: "1522px",
         margin: "0 auto",
         alignItems: "center",
     }),
@@ -80,13 +81,13 @@ const styles = {
     logoText: style({
         color: "#242a31",
         fontSize: "17px",
-        fontWeight: 400,
+        fontWeight: 500,
         whiteSpace: "nowrap"
     }),
     navLayout: style({
         paddingLeft: "88px",
         color: "#FC6C04",
-        fontWeight: 400,
+        fontWeight: 500,
         fontSize: "16px"
     })
 }

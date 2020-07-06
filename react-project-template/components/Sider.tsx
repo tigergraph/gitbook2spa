@@ -5,28 +5,6 @@ import { useHistory, useLocation } from 'react-router-dom'
 
 let currentScrollTopOfSideNav = 0;
 
-const styles: Record<
-  'stickyColWrapper' | 'stickyColWithoutScrollbar'
-  , React.CSSProperties> = {
-    stickyColWrapper: {
-        position: "sticky",
-        top: 0,
-        height: "100%",
-        width: "calc((100% - 1448px) / 2 + 298px)",
-        minWidth: "298px",
-        overflow: "hidden",
-    },
-    stickyColWithoutScrollbar: {
-        width: "100%",
-        height: "100%",
-        maxHeight: "100vh",
-        boxSizing: "content-box", // use `content-box` to exclude the right padding of child's width
-        paddingRight: "20px", // the right padding 20px is used to hide the scrollbar
-        overflow: "hidden auto",
-        overscrollBehavior: "contain"
-    }
-};
-
 const getParentPath = (pages: Pages, targetUid: string): string | undefined => {
     for (let i = 0; i < pages?.length; i++) {
         const page = pages[i]
@@ -141,49 +119,11 @@ export const Sider: React.FC = ({ children }) => {
     };
 
     return (
-      <div
-        className="main-container"
-        style={{
-            position: "relative",
-            display: "flex",
-            justifyContent: "center",
-        }}>
-          <div
-            className="left-gray-bg"
-            style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                height: "100%",
-                width: "calc((100% - 1448px) / 2)",
-                backgroundColor: "#F5F7F9",
-                zIndex: -1
-            }}
-          />
-
-          <div
-            className="main"
-            style={{
-                display: "flex",
-                height: "100%",
-                width: "100%",
-                maxWidth: "1448px",
-                margin: "0 auto",
-            }}
-          >
-              <div
-                className="side-nav-container"
-                style={styles.stickyColWrapper}
-              >
-                  <div
-                    className="side-nav"
-                    style={{
-                        ...styles.stickyColWithoutScrollbar,
-                        maxHeight: "calc(100vh - 20px)", // minus the top padding 20px
-                        paddingTop: "20px",
-                        backgroundColor: "#F5F7F9",
-                        borderRight: "1px solid #E6ECF1"
-                    }}>
+      <div className="main-container">
+          <main className="main">
+              <div className="left-gray-bg"/>
+              <div className="side-nav-container sticky-col-wrapper">
+                  <div className="side-nav sticky-col-with-hidden-scrollbar">
                       {/* ----- For version selection ----- */}
                       <GroupLayoutUI title={"versions"}>
                           <IndentLayout>
@@ -240,17 +180,8 @@ export const Sider: React.FC = ({ children }) => {
                   {children}
               </div>
 
-              <div
-                id="table-of-content"
-                className="table-of-content"
-                style={styles.stickyColWrapper}
-              >
-                  <div style={{
-                      ...styles.stickyColWithoutScrollbar,
-                      maxHeight: "calc(100vh - 40px)", // minus the top padding 40px
-                      paddingTop: "40px",
-                      borderLeft: "1px solid #E6ECF1",
-                  }}>
+              <div className="table-of-content-container sticky-col-wrapper">
+                  <div className="table-of-content sticky-col-with-hidden-scrollbar">
                       {
                           Array.from(anchorLinks.current).map(ele => {
                               if (ele.querySelector('span')?.textContent) {
@@ -286,7 +217,7 @@ export const Sider: React.FC = ({ children }) => {
                       }
                   </div>
               </div>
-          </div>
+          </main>
       </div>
     )
 }
