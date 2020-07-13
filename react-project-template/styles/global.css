@@ -26,6 +26,7 @@
   font-style: italic;
 }
 
+/* For side nav layout */
 .sticky-col-wrapper {
   position: sticky;
   top: 0;
