@@ -25,6 +25,12 @@ jobs:
         run: sudo python3 -m pip install -U selenium webdriver_manager
       - name: Download Exported Data
         run: python3 ./tools/export_gitbook.py --headless --user ${{ env.GITBOOK_USER}} --password ${{ secrets.GITBOOK_PASSWORD }} --target ./gitbook.zip
+      - name: Upload Gitbook exported data
+        uses: actions/upload-artifact@v1
+        with:
+          name: exported-gitbook-content
+          path: gitbook.zip
+
 
       - name: Setup Node
         uses: actions/setup-node@v1
