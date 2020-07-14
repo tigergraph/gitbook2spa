@@ -1,8 +1,8 @@
-# Gitbook to SPA
+# GitBook to SPA
 
 ## Introduction
 
-This tool is used to convert Gitbook exported data into a React SPA project
+This project is used to convert GitBook exported data into a React SPA. It can help you to read GitBook document locally. 
 
 ## Docker Image
 
@@ -40,28 +40,45 @@ There are two parts of this project:
 2. React template under `react-project-template`
 
 The workflow is shown as below:
+
 ![introduce](./introduce.png "introduce")
 
 
 ### File structure
 
+```plain
+├── formatter.go                        # Entry point of formatting tsx files
+├── fs.go                               # I/O utility helper
+├── h.go                                # Element generator
+├── index_generator.go                  # Generate indexing files from GitBook for full-text search
+├── node.go                             # Traverse JSON data node
+├── static                              # For static files, like favicon and logo
+├── template.go                         # General template
+├── render.go                           # Transform JSON data node into React element
+...
+└── react-project-template                 # React code for rendering
+  └── components                              # React components
+    ├── block                                    # Components for different types of GitBook content
+    ├── Sider.tsx                                # The layout of SPA
+    └── Search.tsx                               # Full-text search components
+    ...
+  ├── fonts                                # Font files
+  └── lib                                  # Utility
+    ├── CreateMathComponent.tsx               # Math and formula helper
+    ├── OnHover.tsx                           # Wrapper for hovering component
+    ├── checkType.ts                          # Element tag matcher
+    ├── findChildType.ts                      # Recursively find the matching first element with tag
+    ├── findPage.ts                           # Search page information from revision.json
+    ├── mergeClassName.ts                     # Merge class name
+    └── renderFileSize.ts                     # File size helper
+  ├── package.json
+  ├── server.js                            # For local testing after running `yarn build` in `/build_temp/src`
+  └── styles                               # CSS files
+  ...
 ```
-├── formatter.go: entrypoint of formatting tsx files
-├── fs.go: i/o utilities
-├── h.go: element tag generator
-├── node.go: json->react dom
-├── static: static files including favicon and logo
-├── template.go: template for tsx files
-├── render.go: render tags into tsx code
-├── react-project-template: front-end spa project template
-    ├── lib: utility methods
-        ├── CreateMathComponent.tsx: math component renderer
-        ├── OnHover.tsx: wrapper for hovering component
-        ├── checkType.ts: element tag matcher
-        ├── findChildType.ts: recursively find the matching first element with tag
-        ├── findPage.ts: search page information from revision.json
-        ├── mergeClassName.ts: merge class name
-        └── renderFileSize.ts: file size renderer
-    ├── parts: basic rendering components
-    ├── server.js: used to for development
+
+> The flow from extracting JSON data to generate React template(.tsx)
+
+```plain
+makeTSX (main.go) -> Parser (formatter.go) -> Render (node.go) -> render.go
 ```
