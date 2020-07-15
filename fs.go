@@ -37,6 +37,24 @@ func WriteFile(filename string, content string) bool {
 	return true
 }
 
+func AppendFile(filename string, content string) bool {
+	var f *os.File
+	if fileExists(filename) {
+		f, _ = os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
+	} else {
+		if !fileExists(filepath.Dir(filename)) {
+			os.MkdirAll(filepath.Dir(filename), os.ModePerm)
+		}
+		f, _ = os.Create(filename)
+	}
+
+	_, wErr := io.WriteString(f, content)
+	if wErr != nil {
+		return false
+	}
+	return true
+}
+
 // GetBasenamePrefix gets the basename of a path and remove the extension
 func GetBasenamePrefix(fpath string) string {
 	fullFilename := fpath

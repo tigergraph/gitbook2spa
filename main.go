@@ -67,6 +67,18 @@ type AssetsInfo struct {
 	Name string
 }
 
+type Section struct {
+	Title   string
+	Anchor  string
+	Content string
+}
+
+type IndexData struct {
+	Uid      string   // filename as uid
+	Page     string   // page name
+	Sections []Section
+}
+
 func (c *Config) TaskInfo() *TaskInfo {
 	t := TaskInfo{
 		ZipPath:                  filepath.Join(c.Workdir, "zip"),
@@ -136,6 +148,8 @@ func makeAssetsPath() {
 func json2tsx() {
 	originDirPath := filepath.Join(task.GitBookPath, "versions")
 	targetDirPath := filepath.Join(task.GitBookPath, "versions")
+
+	// Read dir under "/build_temp/src/gitbook/versions"
 	fileinfoList, err := ioutil.ReadDir(originDirPath)
 
 	if err != nil {
@@ -143,6 +157,10 @@ func json2tsx() {
 	}
 	for i := range fileinfoList {
 		versionName := fileinfoList[i].Name()
+
+		// Generate document index by version for full-text search
+		genSearchIndex(versionName)
+
 		if !strings.Contains(filepath.Join(originDirPath, versionName), ".DS_Store") {
 			formatTargetVersion(
 				filepath.Join(originDirPath, versionName),
@@ -154,6 +172,7 @@ func json2tsx() {
 
 // 获得指定版本内的json文件
 func formatTargetVersion(versionPath string, targetDir string) {
+	// Read dir under "/build_temp/src/gitbook/versions/${versionName}"
 	fileinfoList, err := ioutil.ReadDir(versionPath)
 
 	if err != nil {
@@ -167,6 +186,7 @@ func formatTargetVersion(versionPath string, targetDir string) {
 		jsonPath := filepath.Join(versionPath, fileName)
 		basenamePrefix := GetBasenamePrefix(jsonPath)
 		if WriteFile(filepath.Join(targetDir, basenamePrefix+".tsx"), makeTSX(jsonPath)) {
+			// Remove document in JSON format after transformation to .tsx is finished
 			os.Remove(jsonPath)
 		} else {
 			log.Warn(basenamePrefix, ".tsx creation failed")
@@ -322,9 +342,8 @@ func makeAppRoot() {
 }
 
 // 生成版本目录下的的路由入口文件
-func makeVersionRoot(version string) {
-
-	versionPath := filepath.Join(task.GitBookPath, "versions", version)
+func makeVersionRoot(versionName string) {
+	versionPath := filepath.Join(task.GitBookPath, "versions", versionName)
 	versionRootPath := filepath.Join(versionPath, "_versionRoute.tsx")
 	pages, _ := ioutil.ReadDir(versionPath)
 
@@ -336,7 +355,7 @@ func makeVersionRoot(version string) {
 		targetUid := strings.Replace(name, ".tsx", "", 1)
 		revision := Revision{}
 		json.Unmarshal(revisionJSON, &revision)
-		currentVersion := revision.Versions[version]
+		currentVersion := revision.Versions[versionName]
 		_path := ""
 
 		if currentVersion.Page.Uid == targetUid {
@@ -398,4 +417,39 @@ func deepFindPage(pages []VersionInfo, targetUid string) (VersionInfo, bool) {
 	}
 
 	return VersionInfo{}, false
+}
+
+func genSearchIndex(versionName string)  {
+	versionPath := filepath.Join(task.GitBookPath, "versions", versionName)
+
+	revisionJSON, _ := ioutil.ReadFile(filepath.Join(task.GitBookPath, "revision.json"))
+	revision := Revision{}
+	json.Unmarshal(revisionJSON, &revision)
+
+	// For full-text search index
+	versionIndex := ProcessRevision(revision, versionName)
+
+	for i, page := range versionIndex {
+		// Read document
+		filename := page.Uid + ".json"
+		docJSON, _ := ioutil.ReadFile(filepath.Join(versionPath, filename));
+
+		doc := JSONInfo{}
+		err := json.Unmarshal(docJSON, &doc)
+
+		if err != nil {
+			return
+		}
+
+		// Fill content to index
+		sections := []Section{}
+		doc.Document.CollectIndexContent(&sections, false, true)
+
+		versionIndex[i].Sections = sections
+	}
+
+	versionIndexJSON, _ := JSONMarshal(versionIndex)
+	indexFilename :=  versionName + ".json"
+
+	WriteFile(filepath.Join(task.GitBookPath, "search-index", indexFilename), string(versionIndexJSON))
 }

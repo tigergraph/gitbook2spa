@@ -119,113 +119,114 @@ export const Sider: React.FC = ({ children }) => {
     };
 
     return (
-      <div className="main-container">
-          <main className="main">
-              <div className="left-gray-bg"/>
-              <div className="side-nav-container sticky-col-wrapper">
-                  <div className="side-nav sticky-col-with-hidden-scrollbar">
-                      {/* ----- For version selection ----- */}
-                      <GroupLayoutUI title={"versions"}>
-                          <IndentLayout>
-                              {
-                                  !!currentVersionItem && <SiderItemRenderUI
-                                    onPress={() => {setShowVersion(!showVersion); return ;}}
-                                    title={currentVersionItem}
-                                    path={""}
-                                    kind={""}
-                                    href={""}
-                                    onSelected={false}
-                                    hasChildren={true}
-                                    onOpen={showVersion}
-                                  />
-                              }
-                              {
-                                  showVersion && versionList.map((v, idx) => {
-                                      return <SiderItemRenderUI
-                                        key={idx}
-                                        title={v}
-                                        path={`/${v}/${reversion.versions[v]?.page?.uid}`}
-                                        kind={reversion.versions[v]?.page?.kind}
-                                        href={reversion.versions[v]?.page?.href}
-                                        onSelected={getVersionPage(location.pathname)?.version === v}
-                                      />
-                                  })
-                              }
-                          </IndentLayout>
-                      </GroupLayoutUI>
+        <div className="main-container">
+            <main className="main">
+                <div className="left-gray-bg"/>
+                <div className="side-nav-container sticky-col-wrapper">
+                    <div className="side-nav sticky-col-with-hidden-scrollbar">
+                        {/* ----- For version selection ----- */}
+                        <GroupLayoutUI title={"versions"}>
+                            <IndentLayout>
+                                {
+                                    !!currentVersionItem && <SiderItemRenderUI
+                                        onPress={() => {setShowVersion(!showVersion); return ;}}
+                                        title={currentVersionItem}
+                                        path={""}
+                                        kind={""}
+                                        href={""}
+                                        onSelected={false}
+                                        hasChildren={true}
+                                        onOpen={showVersion}
+                                    />
+                                }
+                                {
+                                    showVersion && versionList.map((v, idx) => {
+                                        return <SiderItemRenderUI
+                                            key={idx}
+                                            title={v}
+                                            path={`/${v}/${reversion.versions[v]?.page?.uid}`}
+                                            kind={reversion.versions[v]?.page?.kind}
+                                            href={reversion.versions[v]?.page?.href}
+                                            onSelected={getVersionPage(location.pathname)?.version === v}
+                                        />
+                                    })
+                                }
+                            </IndentLayout>
+                        </GroupLayoutUI>
 
-                      {/* ----- 'TigerGraph Document' nav item ----- */}
-                      <IndentLayout>
-                          <SiderItemRenderUI
-                            kind={pageRoutes?.kind}
-                            href={pageRoutes?.href}
-                            title={pageRoutes?.title}
-                            path={`/${pageRoutes?.uid}`}
-                            onPress={recordSidenavScrollingPosition}
-                          />
-                      </IndentLayout>
+                        {/* ----- 'TigerGraph Document' nav item ----- */}
+                        <IndentLayout>
+                            <SiderItemRenderUI
+                                kind={pageRoutes?.kind}
+                                href={pageRoutes?.href}
+                                title={pageRoutes?.title}
+                                path={`/${pageRoutes?.uid}`}
+                                onPress={recordSidenavScrollingPosition}
+                            />
+                        </IndentLayout>
 
-                      {/* ----- Other nav items ----- */}
-                      {renderSider(pageRoutes?.pages, false, recordSidenavScrollingPosition)}
-                  </div>
-              </div>
+                        {/* ----- Other nav items ----- */}
+                        {renderSider(pageRoutes?.pages, false, recordSidenavScrollingPosition)}
+                    </div>
+                </div>
 
-              <div
-                id="content"
-                className="content"
-                style={{
-                    flex: 1
-                }}
-              >
-                  {children}
-              </div>
+                <div
+                    id="content"
+                    className="content"
+                    style={{
+                        flex: 1
+                    }}
+                >
+                    {children}
+                </div>
 
-              <div className="table-of-content-container sticky-col-wrapper">
-                  <div className="table-of-content sticky-col-with-hidden-scrollbar">
-                      {
-                          Array.from(anchorLinks.current).map(ele => {
-                              if (ele.querySelector('span')?.textContent) {
-                                  const level = (ele as any).dataset.level
-                                  const href = `#${(ele.textContent || "").toLowerCase().replace(/\s+|\./g, "_")}`
-                                  const onSelect = location.hash === href
-                                  switch (level) {
-                                      case 'one':
-                                          return <OnHover>
-                                              {(isEnter: boolean) => {
-                                                  return <div style={{ lineHeight: "15px", marginBottom: "8px", padding: onSelect ? "4px 16px 4px 22px" : "4px 16px 4px 24px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
-                                                      <a href={href} style={{ color: (isEnter || onSelect) ? "rgb(252, 108, 4)" : "rgb(116, 129, 141)", textDecoration: "none", fontSize: '12px', fontWeight: 500, lineHeight: "21px" }}>
-                                                          {ele.textContent}
-                                                      </a>
-                                                  </div>
-                                              }}
-                                          </OnHover>
-                                      case 'two':
-                                          return <OnHover>
-                                              {(isEnter: boolean) => {
-                                                  return <div style={{ lineHeight: "15px", marginBottom: "8px", padding: onSelect ? "4px 16px 4px 38px" : "4px 16px 4px 40px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
-                                                      <a href={href} style={{ color: (isEnter || onSelect) ? "rgb(252, 108, 4)" : "rgb(116, 129, 141)", textDecoration: "none", fontSize: '12px', fontWeight: 500, lineHeight: "18px" }}>
-                                                          {ele.textContent}
-                                                      </a>
-                                                  </div>
-                                              }}
-                                          </OnHover>
-                                      default:
-                                          return null
-                                  }
-                              }
-                          })
-                      }
-                  </div>
-              </div>
-          </main>
-      </div>
+                <div className="table-of-content-container sticky-col-wrapper">
+                    <div className="table-of-content sticky-col-with-hidden-scrollbar">
+                        {
+                            Array.from(anchorLinks.current).map(ele => {
+                                if (ele.querySelector('span')?.textContent) {
+                                    const level = (ele as any).dataset.level;
+                                    const pattern = /\s+|[.,:]/g;
+                                    const href = `#${(ele.textContent || "").toLowerCase().replace(pattern, "_")}`;
+                                    const onSelect = location.hash === href;
+                                    switch (level) {
+                                        case 'one':
+                                            return <OnHover>
+                                                {(isEnter: boolean) => {
+                                                    return <div style={{ lineHeight: "15px", marginBottom: "8px", padding: onSelect ? "4px 16px 4px 22px" : "4px 16px 4px 24px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+                                                        <a href={href} style={{ color: (isEnter || onSelect) ? "rgb(252, 108, 4)" : "rgb(116, 129, 141)", textDecoration: "none", fontSize: '12px', fontWeight: 500, lineHeight: "21px" }}>
+                                                            {ele.textContent}
+                                                        </a>
+                                                    </div>
+                                                }}
+                                            </OnHover>
+                                        case 'two':
+                                            return <OnHover>
+                                                {(isEnter: boolean) => {
+                                                    return <div style={{ lineHeight: "15px", marginBottom: "8px", padding: onSelect ? "4px 16px 4px 38px" : "4px 16px 4px 40px", borderLeft: onSelect ? "2px solid rgb(252, 108, 4)" : "none", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+                                                        <a href={href} style={{ color: (isEnter || onSelect) ? "rgb(252, 108, 4)" : "rgb(116, 129, 141)", textDecoration: "none", fontSize: '12px', fontWeight: 500, lineHeight: "18px" }}>
+                                                            {ele.textContent}
+                                                        </a>
+                                                    </div>
+                                                }}
+                                            </OnHover>
+                                        default:
+                                            return null
+                                    }
+                                }
+                            })
+                        }
+                    </div>
+                </div>
+            </main>
+        </div>
     )
 }
 
 const renderSider = (pages: Pages = [], isSub?: boolean, onClick?: () => void, inGroup?: boolean ) => {
     return pages.map((page, idx) => {
         const content = isSub ? <SiderItem key={page.uid} page={page} itemStyle={{ color: "rgba(157,170,182,0.8)", marginLeft: "-1px" }} onClick={onClick} />
-          : <IndentLayout style={{padding: inGroup ? "4px 0" : "4px 0 4px 16px" }} key={page.uid} ><SiderItem key={page.uid} page={page} onClick={onClick} /></IndentLayout>
+            : <IndentLayout style={{padding: inGroup ? "4px 0" : "4px 0 4px 16px" }} key={page.uid} ><SiderItem key={page.uid} page={page} onClick={onClick} /></IndentLayout>
         if (page.kind === 'group') {
             return <GroupLayout page={page} key={page.uid}>
                 {renderSider(page.pages, false, onClick, true)}
@@ -331,14 +332,14 @@ const SiderItemRenderUI: React.FC<{
                 <IndentLayout style={{ padding: "8px 0px 8px 16px" }}>
                     {
                         hasChildren
-                          ? (
-                            <div style={{
-                                display: "flex",
-                                flexDirection: "row",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                                paddingRight: "24px"
-                            }}>
+                            ? (
+                                <div style={{
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    paddingRight: "24px"
+                                }}>
                                 <span style={{
                                     fontSize: "14px",
                                     fontWeight: 500,
@@ -346,21 +347,21 @@ const SiderItemRenderUI: React.FC<{
                                 }}>
                                     {title}
                                 </span>
-                                {
-                                    onOpen ? <DownOutlined style={{ color: "rgba(157,170,182,0.8)" }} />
-                                      : <RightOutlined style={{ color: "rgba(157,170,182,0.8)" }} />
-                                }
-                            </div>
-                          ) : (
-                            <div style={{
-                                fontSize: "14px",
-                                fontWeight: 500,
-                                lineHeight: "21px",
-                                paddingRight: "24px"
-                            }}>
-                                {title}
-                            </div>
-                          )
+                                    {
+                                        onOpen ? <DownOutlined style={{ color: "rgba(157,170,182,0.8)" }} />
+                                            : <RightOutlined style={{ color: "rgba(157,170,182,0.8)" }} />
+                                    }
+                                </div>
+                            ) : (
+                                <div style={{
+                                    fontSize: "14px",
+                                    fontWeight: 500,
+                                    lineHeight: "21px",
+                                    paddingRight: "24px"
+                                }}>
+                                    {title}
+                                </div>
+                            )
                     }
                 </IndentLayout>
             </div>

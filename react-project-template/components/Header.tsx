@@ -1,6 +1,8 @@
 import * as React from 'react'
-import { style } from 'typestyle'
 import { Link } from 'react-router-dom'
+import { Search } from "@components/Search";
+
+import styles from '@styles/header.module.css';
 
 export const Header: React.FC = ({ children }) => {
     return <React.Fragment>
@@ -12,82 +14,38 @@ export const Header: React.FC = ({ children }) => {
                         <span className={styles.logoText}>{space?.name}</span>
                     </div>
                 </div>
+
                 <div className={styles.navLayout}>
                     {
                         space?.links?.map(link => {
                             if (!!link.pageID) {
                                 return <Link
-                                  rel="noopener noreferrer"
-                                  to={link.pageID}
-                                  style={{
-                                      color: "#FC6C04",
-                                      marginRight: "35px"
-                                  }}>
+                                    rel="noopener noreferrer"
+                                    to={link.pageID}
+                                    style={{
+                                        color: "#FC6C04",
+                                        marginRight: "35px"
+                                    }}>
                                     {link.title}
                                 </Link>
                             }
                             return <a
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              href={link.href}
-                              style={{
-                                  color: "#FC6C04",
-                                  marginRight: "35px"
-                              }}>
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                href={link.href}
+                                style={{
+                                    color: "#FC6C04",
+                                    marginRight: "35px"
+                                }}>
                                 {link.title}
                             </a>
                         })
                     }
                 </div>
+
+                <Search/>
             </div>
         </div>
         {children}
     </React.Fragment>
-}
-
-const styles = {
-    header: style({
-        display: "flex",
-        position: "relative",
-        justifyContent: "center",
-        borderBottom: "1px solid rgb(212, 218, 223)",
-        boxShadow: "0 3px 8px 0 rgba(17, 20, 23, 0.1)",
-        minWidth: "1522px",
-        zIndex: 20
-    }),
-    layout: style({
-        display: "flex",
-        height: "80px",
-        width: "100%",
-        maxWidth: "1522px",
-        margin: "0 auto",
-        alignItems: "center",
-    }),
-    logoLayout: style({
-        width: "298px",
-        height: "40px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        borderRight: "1px solid rgb(230, 236, 241)"
-    }),
-    logoInnerLayout: style({
-        width: "250px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-
-    }),
-    logoText: style({
-        color: "#242a31",
-        fontSize: "17px",
-        fontWeight: 500,
-        whiteSpace: "nowrap"
-    }),
-    navLayout: style({
-        paddingLeft: "88px",
-        color: "#FC6C04",
-        fontWeight: 500,
-        fontSize: "16px"
-    })
 }

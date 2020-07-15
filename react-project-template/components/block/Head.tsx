@@ -4,8 +4,34 @@ import { BlockData } from '.'
 export type HeadType = "heading-1" | "heading-2" | "heading-3"
 
 export const RenderHead: React.FC<{ type: HeadType, data?: BlockData }> = ({ type, children, data }) => {
-    const child = ((children as any)?.props?.children)
-    const text = (typeof child === 'string' ? child : "").toLowerCase().replace(/\s+|\./g, "_");
+    const child = ((children as any)?.props?.children);
+    const pattern = /\s+|[.,:]/g;
+    let text = '';
+
+    if (typeof child === 'string') {
+        text = child
+            .toLowerCase()
+            .replace(pattern, '_');
+    }
+
+    if (
+        Array.isArray(child) &&
+        child.every((item) => typeof item === "string")
+    ) {
+        text = child
+            .join("")
+            .toLowerCase()
+            .replace(pattern, "_");
+    }
+
+    if (Array.isArray(children)) {
+        text = children
+            .map((item) => findChildText(item))
+            .join("")
+            .toLowerCase()
+            .replace(pattern, "_");
+    }
+
     switch (type) {
         case "heading-1":
             return <h1 className={"heading-anchor-link"} data-level={"one"} id={text} style={{
@@ -30,4 +56,16 @@ export const RenderHead: React.FC<{ type: HeadType, data?: BlockData }> = ({ typ
         default:
             return null;
     }
+}
+
+function findChildText(element: any): string {
+    const child = element?.props?.children;
+
+    if (typeof child === 'object' && 'props' in child) {
+        return findChildText(child)
+    }
+
+    return  Array.isArray(child) && child.every((item: any) => typeof item === "string")
+        ? child.join("")
+        : String(child);
 }
