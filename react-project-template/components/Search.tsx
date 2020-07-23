@@ -14,6 +14,7 @@ const { Search: SearchInput } = Input;
 
 interface IndexData {
     Uid: string
+    Path: string
     Page: string
     Sections: Section[]
 }
@@ -92,8 +93,10 @@ export const Search: React.FC = () => {
         doSearch();
     };
 
-    const clickOnResult = (pageID: string, anchor: string = '') => {
-        const path = anchor ? `/${currentVersion}/${pageID}#${anchor}` : `/${currentVersion}/${pageID}`;
+    const clickOnResult = (pagePath: string, anchor: string = '') => {
+        const path = anchor
+            ? `/${currentVersion}/${pagePath}#${anchor}`
+            : `/${currentVersion}/${pagePath}`;
 
         history.push(path);
 
@@ -111,12 +114,12 @@ export const Search: React.FC = () => {
     const renderResult = (res: IndexData[]) => {
         return res.map(item => {
             return (
-                <li className={styles.matchedItem} key={item.Uid}>
+                <li className={styles.matchedItem} key={item.Path}>
                     <div className={styles.pageName}>
                         <div
                             className={styles.pageNameText}
                             dangerouslySetInnerHTML={{__html: item.Page}}
-                            onClick={() => clickOnResult(item.Uid)}
+                            onClick={() => clickOnResult(item.Path)}
                         />
                     </div>
 
@@ -124,7 +127,7 @@ export const Search: React.FC = () => {
                         <section
                             className={styles.section}
                             key={index}
-                            onClick={() => clickOnResult(item.Uid, section.Anchor)}
+                            onClick={() => clickOnResult(item.Path, section.Anchor)}
                         >
                             <div
                                 className={styles.sectionTitle}

@@ -21,6 +21,7 @@ export const Header: React.FC = ({ children }) => {
                             if (!!link.pageID) {
                                 return <Link
                                     rel="noopener noreferrer"
+                                    key={link.pageID}
                                     to={link.pageID}
                                     style={{
                                         color: "#FC6C04",

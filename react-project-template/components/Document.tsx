@@ -7,7 +7,7 @@ export const Document: React.SFC<Partial<{
     type: string
 }>> = props => {
     const location = useLocation();
-    const uid = getVersionPage(location.pathname)?.uid!
+    const path = getVersionPage(location.pathname)?.path!
     const versionName = getVersionPage(location.pathname)?.version!
     React.useEffect(() => {
         document.body.style.fontFamily = "Content-font, Roboto, sans-serif"
@@ -15,8 +15,13 @@ export const Document: React.SFC<Partial<{
     }, [])
     return <div style={styles.layout}>
         <div style={{ marginBottom: "32px", padding: "40px 0", borderBottom: "2px solid rgb(230, 236, 241)" }}>
-            <h1 style={styles.title}>{findPage(uid, versionName, 'uid')?.title || "Page Title"}</h1>
-            {findPage(uid, versionName, 'uid')?.description && <div style={styles.desc}>{findPage(uid, versionName, 'uid')?.description}</div>}
+            <h1 style={styles.title}>{findPage(path, versionName, 'path')?.title || "Page Title"}</h1>
+            {
+                findPage(path, versionName, 'path')?.description &&
+                <div style={styles.desc}>
+                    {findPage(path, versionName, 'path')?.description}
+                </div>
+            }
         </div>
         {
             /* check first element is not heading-1 type */
@@ -44,8 +49,8 @@ export const Document: React.SFC<Partial<{
 }
 
 const styles: Record<
-  'layout' | 'title' | 'desc'
-  , React.CSSProperties> = {
+    'layout' | 'title' | 'desc'
+    , React.CSSProperties> = {
     layout: {
         backgroundColor: "#fff",
         width: "750px",

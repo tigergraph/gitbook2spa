@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"encoding/json"
 	"regexp"
 	"strings"
@@ -22,6 +23,7 @@ func ProcessRevision(revision Revision, versionName string) []IndexData {
 	result = append(result, IndexData{
 		Uid:  currentVersion.Page.Uid,
 		Page: currentVersion.Page.Title,
+		Path: "",
 	})
 
 	// For other pages
@@ -31,21 +33,29 @@ func ProcessRevision(revision Revision, versionName string) []IndexData {
 }
 
 func traversePages(parentPage VersionInfo, result *[]IndexData) {
+	childPages := parentPage.Pages
+
 	// Find if any child page exists
-	for _, childPage := range parentPage.Pages {
+	for i := range childPages {
 		// Only add `document` to index
-		if childPage.Kind == "document" {
+		if childPages[i].Kind == "document" {
+			// Skip the the path of top level page
+			if parentPage.Path != "master" && !childPages[i].Visited {
+				childPages[i].Visited = true
+				childPages[i].Path = fmt.Sprintf("%v/%v", parentPage.Path, childPages[i].Path)
+			}
+
 			*result = append(*result, IndexData{
-				Uid:  childPage.Uid,
-				Page: childPage.Title,
+				Uid:  childPages[i].Uid,
+				Page: childPages[i].Title,
+				Path: childPages[i].Path,
 			})
 		}
 
-		if len(childPage.Pages) != 0 {
-			traversePages(childPage, result)
+		if len(childPages[i].Pages) != 0 {
+			traversePages(childPages[i], result)
 		}
 	}
-
 }
 
 var newSection = Section{}
@@ -121,9 +131,9 @@ func extractText(n *NodeTree) string {
 
 // Transform to JSON without escaped character
 func JSONMarshal(t interface{}) ([]byte, error) {
-    buffer := &bytes.Buffer{}
-    encoder := json.NewEncoder(buffer)
-    encoder.SetEscapeHTML(false) // not escape <, >, &
-    err := encoder.Encode(t)
-    return buffer.Bytes(), err
+	buffer := &bytes.Buffer{}
+	encoder := json.NewEncoder(buffer)
+	encoder.SetEscapeHTML(false) // not escape <, >, &
+	err := encoder.Encode(t)
+	return buffer.Bytes(), err
 }

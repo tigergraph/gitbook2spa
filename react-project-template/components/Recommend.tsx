@@ -9,9 +9,9 @@ export const Recommend: React.SFC<Partial<{
 }>> = props => {
     const history = useHistory();
     const location = useLocation();
-    const uid = getVersionPage(location.pathname)?.uid!
+    const path = getVersionPage(location.pathname)?.path!
     const versionName = getVersionPage(location.pathname)?.version!
-    const pageInfo = findPage(uid, versionName, 'uid')
+    const pageInfo = findPage(path, versionName, 'path')
 
     if (!pageInfo?.pages?.length) {
         return null
@@ -27,7 +27,7 @@ export const Recommend: React.SFC<Partial<{
                     return <Col
                         span={11}
                         onClick={() => {
-                            history.push(childPage.uid)
+                            history.push(`/${versionName}/${childPage.path}`)
                         }}
                         style={{
                             fontSize: '16px',

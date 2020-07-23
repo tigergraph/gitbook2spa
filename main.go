@@ -30,21 +30,22 @@ type VersionInfo struct {
 	DocumentURL string        `json:"documentURL"`
 	CreatedAt   string        `json:"createdAt"`
 	Pages       []VersionInfo `json:"pages"`
+	Visited     bool          `json:"-"`
 }
 
 type Revision struct {
-	Versions map[string]TopLevelVersion
+	Versions map[string]TopLevelVersion `json:"versions"`
 }
 
 type TopLevelVersion struct {
-	Page VersionInfo
+	Page VersionInfo `json:"page"`
 }
 
 type TaskInfo struct {
 	ZipPath                  string
 	WhiteList                []string
 	Default                  string
-	GitBookPath                  string
+	GitBookPath              string
 	DistPath                 string
 	ReactProjectTemplatePath string
 }
@@ -74,8 +75,9 @@ type Section struct {
 }
 
 type IndexData struct {
-	Uid      string   // filename as uid
-	Page     string   // page name
+	Uid      string // file name as uid
+	Path     string // URL path
+	Page     string // from revision.json
 	Sections []Section
 }
 
@@ -319,9 +321,9 @@ func makeAppRoot() {
 	import 'katex/dist/katex.min.css';
 	import '../styles/global.css';
     %v
-	const reversion = require('./revision.json');
+	const revision = require('./revision-lite.json');
 	const space = require('./space.json');
-    (window as any)['reversion'] = reversion;
+    (window as any)['revision'] = revision;
     (window as any)['space'] = space;
     (window as any)['whiteList'] = "%v";
 
@@ -347,21 +349,22 @@ func makeVersionRoot(versionName string) {
 	versionRootPath := filepath.Join(versionPath, "_versionRoute.tsx")
 	pages, _ := ioutil.ReadDir(versionPath)
 
+	revisionJSON, _ := ioutil.ReadFile(filepath.Join(task.GitBookPath, "revision.json"))
+	revision := Revision{}
+	json.Unmarshal(revisionJSON, &revision)
+	currentVersion := revision.Versions[versionName]
+
 	pagesList := []PageRouteInfo{}
 
 	for i, v := range pages {
 		name := filepath.Base(v.Name())
-		revisionJSON, _ := ioutil.ReadFile(filepath.Join(task.GitBookPath, "revision.json"))
 		targetUid := strings.Replace(name, ".tsx", "", 1)
-		revision := Revision{}
-		json.Unmarshal(revisionJSON, &revision)
-		currentVersion := revision.Versions[versionName]
 		_path := ""
 
 		if currentVersion.Page.Uid == targetUid {
 			_path = currentVersion.Page.Path
 		} else if len(currentVersion.Page.Pages) != 0 {
-			pageInfo, ok := deepFindPage(currentVersion.Page.Pages, targetUid)
+			pageInfo, ok := deepFindPage(currentVersion.Page.Path, currentVersion.Page.Pages, targetUid)
 			if ok {
 				_path = pageInfo.Path
 			}
@@ -375,15 +378,33 @@ func makeVersionRoot(versionName string) {
 		})
 	}
 
+	// Write content to revision-lite.json
+	revisionLiteJSON, err := ioutil.ReadFile(filepath.Join(task.GitBookPath, "revision-lite.json"))
+
+	updatedRevision, _ := json.Marshal(revision)
+
+	if err == nil {
+		revisionLite := Revision{}
+		json.Unmarshal(revisionLiteJSON, &revisionLite)
+
+		revisionLite.Versions[versionName] = revision.Versions[versionName]
+		updatedRevision, _ = json.Marshal(revisionLite)
+	}
+
+	WriteFile(filepath.Join(task.GitBookPath, "revision-lite.json"), string(updatedRevision))
+
 	routeImportPath := ""
 	routesElements := ""
 	defaultRoute := ""
 
 	for _, v := range pagesList {
 		routeImportPath += v.ImportPath + "\n"
-		routesElements += fmt.Sprintf("<Route path={`${props.match.url}/%v`} exact component={%v} />", v.PageUid, v.Component) + "\n"
+
 		if v.PagePath == "master" {
-			defaultRoute = fmt.Sprintf("<Redirect to={`${props.match.url}/%v`}/>", v.PageUid)
+			routesElements += fmt.Sprintf("<Route path={`${props.match.url}`} exact component={%v} />", v.Component) + "\n"
+			defaultRoute = "<Redirect to={`${props.match.url}`}/>"
+		} else {
+			routesElements += fmt.Sprintf("<Route path={`${props.match.url}/%v`} exact component={%v} />", v.PagePath, v.Component) + "\n"
 		}
 	}
 
@@ -403,13 +424,20 @@ func makeVersionRoot(versionName string) {
 }
 
 // 根据目标uid递归寻找revision下的page json
-func deepFindPage(pages []VersionInfo, targetUid string) (VersionInfo, bool) {
-	for _, page := range pages {
-		if page.Uid == targetUid {
-			return page, true
+func deepFindPage(parentPath string, childPages []VersionInfo, targetUid string) (VersionInfo, bool) {
+	for i := range childPages {
+		// Skip the path of top level page which call `deepFindPage()`
+		if parentPath != "master" && !childPages[i].Visited {
+			childPages[i].Visited = true
+			childPages[i].Path = fmt.Sprintf("%v/%v", parentPath, childPages[i].Path)
 		}
-		if len(page.Pages) != 0 {
-			childPage, ok := deepFindPage(page.Pages, targetUid)
+
+		if childPages[i].Uid == targetUid {
+			return childPages[i], true
+		}
+
+		if len(childPages[i].Pages) != 0 {
+			childPage, ok := deepFindPage(childPages[i].Path, childPages[i].Pages, targetUid)
 			if ok {
 				return childPage, ok
 			}
@@ -419,7 +447,7 @@ func deepFindPage(pages []VersionInfo, targetUid string) (VersionInfo, bool) {
 	return VersionInfo{}, false
 }
 
-func genSearchIndex(versionName string)  {
+func genSearchIndex(versionName string) {
 	versionPath := filepath.Join(task.GitBookPath, "versions", versionName)
 
 	revisionJSON, _ := ioutil.ReadFile(filepath.Join(task.GitBookPath, "revision.json"))
@@ -432,7 +460,7 @@ func genSearchIndex(versionName string)  {
 	for i, page := range versionIndex {
 		// Read document
 		filename := page.Uid + ".json"
-		docJSON, _ := ioutil.ReadFile(filepath.Join(versionPath, filename));
+		docJSON, _ := ioutil.ReadFile(filepath.Join(versionPath, filename))
 
 		doc := JSONInfo{}
 		err := json.Unmarshal(docJSON, &doc)
@@ -449,7 +477,7 @@ func genSearchIndex(versionName string)  {
 	}
 
 	versionIndexJSON, _ := JSONMarshal(versionIndex)
-	indexFilename :=  versionName + ".json"
+	indexFilename := versionName + ".json"
 
 	WriteFile(filepath.Join(task.GitBookPath, "search-index", indexFilename), string(versionIndexJSON))
 }
