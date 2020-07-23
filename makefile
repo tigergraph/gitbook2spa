@@ -29,3 +29,7 @@ release/doc: doc
 
 docker-image: release/doc release/nginx.conf
 	docker build -f docker/Dockerfile ./release -t document
+
+update_parser: 
+	rm -rf exec $(parser)
+	go build -o $(parser)

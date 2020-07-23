@@ -1,9 +1,9 @@
 export function findPage(v: string, versionName: string, k?: keyof VersionInfo): VersionInfo | undefined {
-    if (!reversion) {
+    if (!revision) {
         return undefined;
     }
-    const pageRoutes = reversion.versions[versionName]?.page;
-    const key = k! || "uid"
+    const pageRoutes = revision.versions[versionName]?.page;
+    const key = k! || "uid" || "path";
     if (!v) {
         return undefined
     }
@@ -15,7 +15,7 @@ export function findPage(v: string, versionName: string, k?: keyof VersionInfo):
 }
 
 function mapPageInfo(page: VersionInfo, v: string, k?: keyof VersionInfo): VersionInfo | undefined {
-    const key = k! || "uid"
+    const key = k! || "uid" || "path";
     if (!page) {
         return undefined
     }

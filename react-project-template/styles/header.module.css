@@ -129,9 +129,10 @@
 }
 
 .searchResult .pageName .pageNameText {
-    padding-left: 4px;
-    line-height: 1.5;
+    padding-left: 8px;
     border-left: 2px solid rgb(252, 108, 4);
+    font-weight: 500;
+    line-height: 1.5;
 }
 
 .searchResult .section {
@@ -146,6 +147,8 @@
 
 .searchResult .sectionTitle {
     font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
 }
 
 .searchResult .sectionContent {

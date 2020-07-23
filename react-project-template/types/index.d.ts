@@ -7,7 +7,7 @@ declare const CopyBlock: any;
 declare const dracula: any;
 declare const KaTeX: any;
 declare const katex: any;
-declare const reversion: ReVersion;
+declare const revision: Revision;
 declare const space: Space;
 declare module 'react-katex';
 declare module '@ant-design/icons';
@@ -42,7 +42,7 @@ declare type VersionInfo = {
     edits: { contributions: Array<any> };
 }
 
-declare type ReVersion = {
+declare type Revision = {
     versions: Record<string, TopLevelVersion>
 }
 
