@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Button, Drawer, Input, Tooltip } from "antd";
 import { SearchOutlined, InfoCircleOutlined } from '@ant-design/icons';
@@ -6,9 +6,6 @@ import Fuse from "fuse.js";
 import debounce from "lodash.debounce";
 
 import styles from '@styles/header.module.css'
-
-let data: any[] = [];
-let fuse: any;
 
 const { Search: SearchInput } = Input;
 
@@ -23,8 +20,20 @@ interface Section {
     Title: string
     Anchor: string
     Content: string
+    displayTitle?: boolean
+    displayContent?: boolean
+    exactMatch?: boolean
 }
 
+interface PositionObject {
+    start: number
+    end: number
+}
+
+type RangeTuple = [number, number]
+
+let data: any[] = [];
+let fuse: any;
 let currentVersion = '';
 
 export const Search: React.FC = () => {
@@ -54,10 +63,36 @@ export const Search: React.FC = () => {
                     data = module.default;
                     currentVersion = selectedVersion; // remember selected version name
 
+                    // https://fusejs.io/api/options.html
                     fuse = new Fuse(data, {
+                        // findAllMatches: true,
+                        includeMatches: true,
                         includeScore: true,
+                        minMatchCharLength: 3,
+                        shouldSort: true,
+                        threshold: 0.2,
+                        ignoreLocation: true,
+                        distance: 100000,
+                        // ignoreFieldNorm: true, // The shorter the field, the higher its relevance
                         useExtendedSearch: true,
-                        keys: ["Page", "Sections.Title", "Sections.Content"]
+                        keys: ["Page", "Sections.Title", "Sections.Content"],
+                        sortFn: (a, b) => {
+                            if (a.score === 1 && b.score !== 1) {
+                                return -1;
+                            } else if (b.score === 1 && a.score !== 1) {
+                                return 1;
+                            } else {
+                                if(a.score === 1 && b.score === 1) {
+                                    if((a.matches || []).length > (b.matches || []).length) {
+                                        return -1;
+                                    } else {
+                                        return 1;
+                                    }
+                                }
+
+                                return a.score - b.score;
+                            }
+                        }
                     });
                 });
         }
@@ -78,7 +113,11 @@ export const Search: React.FC = () => {
         const doSearch = debounce(
             () => {
                 if (fuse) {
-                    const res = fuse.search("'" + query); // find the item include query string
+                    // https://fusejs.io/examples.html#extended-search
+                    // this pattern contains include and fuzzy match
+                    const pattern = `'${query} | ${query}`;
+
+                    const res = fuse.search(pattern); // find the item include query string
 
                     setSearchResult(searchHighlight(res, query));
                 }
@@ -201,63 +240,240 @@ export const Search: React.FC = () => {
     );
 };
 
-const searchHighlight = (res: [], queryStr: string) => {
-    const filteredRes = JSON.parse(JSON.stringify(res)).map((data: any) => {
-        const searchText = queryStr.toLowerCase().trim();
+const searchHighlight = (res: Fuse.FuseResult<IndexData>, query: string) => {
+    const searchText = query.toLowerCase().trim();
 
-        if (data.item.Page.toLowerCase().includes(searchText)) {
-            const regExp = new RegExp(searchText, "ig");
+    const filteredRes = JSON.parse(JSON.stringify(res)).map((data: Fuse.FuseResult<IndexData>) => {
+        if (data.score === 1) {
+            // exact match
+            if (data.item.Page.toLowerCase().includes(searchText)) {
+                const regExp = new RegExp(searchText, "ig");
 
-            data.item.Page = data.item.Page.replace(
-                regExp,
-                "<mark class='highlight'>$&</mark>"
-            );
-        }
+                data.item.Page = data.item.Page.replace(
+                    regExp,
+                    "<mark class='highlight'>$&</mark>"
+                );
+            }
 
-        data.item.Sections = data.item.Sections.filter((section: Section) => {
-            let flag = false;
+            // The page title of a match is always displayed, the section title and section content are not. We need to filter them.
+            data.item.Sections = data.item.Sections.filter(section => {
+                let flag = false;
 
-            if (section.Content.toLowerCase().includes(searchText)) {
-                const matchSnippetObject = getMatchSnippet(section.Content, searchText);
+                // If section content is matched, we also need to display section title.
+                if (section.Content.toLowerCase().includes(searchText)) {
+                    const matchSnippetObject = getMatchSnippet(section.Content, searchText);
 
-                if (matchSnippetObject) {
-                    const {isToLeftEnd, isToRightEnd, snippet} = matchSnippetObject;
+                    if (matchSnippetObject) {
+                        const { isToLeftEnd, isToRightEnd, snippet } = matchSnippetObject;
+                        const regExp = new RegExp(searchText, "ig");
+
+                        const highlightContent = snippet.replace(
+                            regExp,
+                            "<mark class='highlight'>$&</mark>"
+                        );
+
+                        if (isToLeftEnd && isToRightEnd) {
+                            section.Content = highlightContent;
+                        } else if (!isToLeftEnd && isToRightEnd) {
+                            section.Content = `...${highlightContent}`;
+                        } else if (isToLeftEnd && !isToRightEnd) {
+                            section.Content = `${highlightContent}...`;
+                        } else {
+                            section.Content = `...${highlightContent}...`;
+                        }
+                    }
+
+                    flag = true;
+                } else {
+                    // The section content is not matched. Ignore it.
+                    section.Content = "";
+                }
+
+                // If the match is at section title, we need to highlight it.
+                if (section.Title.toLowerCase().includes(searchText)) {
                     const regExp = new RegExp(searchText, "ig");
 
-                    const highlightContent = snippet.replace(
+                    section.Title = section.Title.replace(
                         regExp,
                         "<mark class='highlight'>$&</mark>"
                     );
 
-                    if (isToLeftEnd && isToRightEnd) {
-                        section.Content = highlightContent;
-                    } else if (!isToLeftEnd && isToRightEnd) {
-                        section.Content = `...${highlightContent}`;
-                    } else if (isToLeftEnd && !isToRightEnd) {
-                        section.Content = `${highlightContent}...`;
-                    } else {
-                        section.Content = `...${highlightContent}...`;
-                    }
+                    flag = true;
                 }
 
-                flag = true;
-            } else {
-                section.Content = "";
-            }
+                return flag;
+            });
+        } else {
+            // fuzzy match
+            data.matches?.forEach(match => {
+                if (match.indices.length !== 0) {
+                    switch (match.key) {
+                        case 'Page': {
+                            // the string needs to be highlighted
+                            let str = match.value!;
 
-            if (section.Title.toLowerCase().includes(searchText)) {
-                const regExp = new RegExp(searchText, "ig");
+                            if (str.toLowerCase().includes(searchText)) {
+                                // Although it is a fuzzy match, it also has exact match content
+                                const regExp = new RegExp(searchText, "ig");
 
-                section.Title = section.Title.replace(
-                    regExp,
-                    "<mark class='highlight'>$&</mark>"
-                );
+                                str = str.replace(
+                                    regExp,
+                                    "<mark class='highlight'>$&</mark>"
+                                );
+                            } else {
+                                const indexArr = getLongestThreeMatches(searchText, str, match.indices);
 
-                flag = true;
-            }
+                                indexArr.forEach(obj => {
+                                    if (obj) {
+                                        const newIndex = str.indexOf(obj.match, obj.index[0] - 1);
 
-            return flag;
-        });
+                                        if (newIndex > -1 && isNewIndexValid(newIndex, obj.index[0])) {
+                                            str = markMatchByIndex(str, newIndex, newIndex + obj.length - 1);
+                                        }
+                                    }
+                                });
+                            }
+
+                            // override the data source
+                            data.item.Page = str;
+
+                            break;
+                        }
+
+                        case 'Sections.Title': {
+                            // the string needs to be highlighted
+                            let str = match.value!;
+
+                            if (str.toLowerCase().includes(searchText)) {
+                                const regExp = new RegExp(searchText, "ig");
+
+                                str = str.replace(
+                                    regExp,
+                                    "<mark class='highlight'>$&</mark>"
+                                );
+                            } else {
+                                const indexArr = getLongestThreeMatches(searchText, str, match.indices);
+
+                                indexArr.forEach(obj => {
+                                    if (obj) {
+                                        const newIndex = str.indexOf(obj.match, obj.index[0] - 1);
+
+                                        if (newIndex > -1 && isNewIndexValid(newIndex, obj.index[0])) {
+                                            str = markMatchByIndex(str, newIndex, newIndex + obj.length - 1);
+                                        }
+                                    }
+                                });
+                            }
+
+                            // override the data source
+                            data.item.Sections[match.refIndex!].Title = str;
+                            data.item.Sections[match.refIndex!].displayTitle = true;
+
+                            break;
+                        }
+
+                        case 'Sections.Content': {
+                            let str = match.value!;
+                            let contentWithEllipsis = '';
+
+                            if (str.toLowerCase().includes(searchText)) {
+                                const matchSnippetObject = getMatchSnippet(str, searchText);
+
+                                if (matchSnippetObject) {
+                                    const { isToLeftEnd, isToRightEnd, snippet } = matchSnippetObject;
+                                    const regExp = new RegExp(searchText, "ig");
+
+                                    const highlightContent = snippet.replace(
+                                        regExp,
+                                        "<mark class='highlight'>$&</mark>"
+                                    );
+
+                                    if (isToLeftEnd && isToRightEnd) {
+                                        contentWithEllipsis = highlightContent;
+                                    } else if (!isToLeftEnd && isToRightEnd) {
+                                        contentWithEllipsis = `...${highlightContent}`;
+                                    } else if (isToLeftEnd && !isToRightEnd) {
+                                        contentWithEllipsis = `${highlightContent}...`;
+                                    } else {
+                                        contentWithEllipsis = `...${highlightContent}...`;
+                                    }
+                                }
+
+                                data.item.Sections[match.refIndex!].exactMatch = true;
+                            } else {
+                                const indexArr = getLongestThreeMatches(searchText, str, match.indices);
+
+                                indexArr.forEach(obj => {
+                                    if (obj) {
+                                        const newIndex = str.indexOf(obj.match, obj.index[0] - 1);
+
+                                        if (newIndex > -1 && isNewIndexValid(newIndex, obj.index[0])) {
+                                            str = markMatchByIndex(str, newIndex, newIndex + obj.length - 1);
+                                        }
+                                    }
+                                });
+
+                                const longestMatchObj = indexArr[0];
+
+                                if (longestMatchObj) {
+                                    const matchSnippetObject = getMatchSnippet(
+                                        str,
+                                        longestMatchObj.match,
+                                        longestMatchObj.index[0] - 1
+                                    );
+
+                                    if (matchSnippetObject) {
+                                        let { isToLeftEnd, isToRightEnd, snippet } = matchSnippetObject;
+
+                                        if (isToLeftEnd && isToRightEnd) {
+                                            contentWithEllipsis = snippet;
+                                        } else if (!isToLeftEnd && isToRightEnd) {
+                                            contentWithEllipsis = `...${snippet}`;
+                                        } else if (isToLeftEnd && !isToRightEnd) {
+                                            contentWithEllipsis = `${snippet}...`;
+                                        } else {
+                                            contentWithEllipsis = `...${snippet}...`;
+                                        }
+                                    }
+                                }
+                            }
+
+                            // override the data source
+                            data.item.Sections[match.refIndex!].Content = contentWithEllipsis;
+                            data.item.Sections[match.refIndex!].displayTitle = true;
+                            data.item.Sections[match.refIndex!].displayContent = true;
+
+                            break;
+                        }
+
+                        default:
+                            console.error(`No matched key: '${match.key}'`);
+                    }
+                }
+            });
+
+            data.item.Sections.sort((a, b) => {
+                if (a.exactMatch && !b.exactMatch) {
+                    return -1
+                } else if (!a.exactMatch && b.exactMatch) {
+                    return 1
+                } else {
+                    return 0;
+                }
+            });
+
+            data.item.Sections = data.item.Sections.filter(section => {
+                if (!section.displayTitle) {
+                    return false;
+                }
+
+                if (!section.displayContent) {
+                    section.Content = '';
+                }
+
+                return true;
+            });
+        }
 
         return data.item;
     });
@@ -265,8 +481,17 @@ const searchHighlight = (res: [], queryStr: string) => {
     return filteredRes;
 };
 
-function getMatchSnippet(string: string, term: string, numOfWords = 6) {
-    const index = string.toLowerCase().indexOf(term.toLowerCase());
+function getMatchSnippet(
+    string: string,
+    term: string,
+    position = 0,
+    numOfWords = 6
+): {
+    isToLeftEnd: boolean
+    isToRightEnd: boolean
+    snippet: string
+} | undefined {
+    const index = string.toLowerCase().indexOf(term.toLowerCase(), position);
 
     if (index >= 0) {
         const _ws = [" ", "\t", "\n"]; // Whitespace
@@ -292,7 +517,9 @@ function getMatchSnippet(string: string, term: string, numOfWords = 6) {
             }
         }
 
-        whitespace = 0; // reset the counter of whitespace
+        // reset the counter of whitespace
+        whitespace = 0;
+
         // left trim index
         for (left = index; whitespace < numOfWords; left--) {
             if (left < 0 || _pm.indexOf(string[left]) >= 0) {
@@ -304,6 +531,65 @@ function getMatchSnippet(string: string, term: string, numOfWords = 6) {
                 whitespace += 1;
             }
         }
+
+        // To avoid the case below, we need to include all the highlight element nearby.
+        // "Angular's <mark class='highlight'>animation</mark> system is built on <mark ..."
+        const markTagPositionArray: PositionObject[] = [];
+
+        const markPrefixStr = `<mark class='highlight'>`;
+        let markTagStart, markTagEnd = -1;
+
+        // store the position of highlight mark
+        do {
+            markTagStart = string.toLowerCase().indexOf(markPrefixStr, markTagEnd !== -1 ? markTagEnd : position);
+
+            if (markTagStart !== -1) {
+                markTagEnd = markTagStart + markPrefixStr.length - 1;
+                markTagPositionArray.push({ start: markTagStart, end: markTagEnd });
+            }
+        } while (markTagStart !== -1);
+
+        let newNumOfWords = numOfWords;
+
+        markTagPositionArray.forEach(pos => {
+            if (pos.start < left && pos.end > left) {
+                newNumOfWords += 1;
+
+                // reset the counter of whitespace
+                whitespace = 0;
+
+                // left trim index
+                for (left = index; whitespace < newNumOfWords; left--) {
+                    if (left < 0 || _pm.indexOf(string[left]) >= 0) {
+                        isToLeftEnd = true;
+                        break;
+                    }
+
+                    if (_ws.indexOf(string[left]) >= 0) {
+                        whitespace += 1;
+                    }
+                }
+            }
+
+            if (pos.start < right && pos.end > right) {
+                newNumOfWords += 1;
+
+                // reset the counter of whitespace
+                whitespace = 0;
+
+                // right trim index
+                for (right = index + term.length; whitespace < newNumOfWords; right++) {
+                    if (right >= string.length || _pm.indexOf(string[right]) >= 0) {
+                        isToRightEnd = true;
+                        break;
+                    }
+
+                    if (_ws.indexOf(string[right]) >= 0) {
+                        whitespace += 1;
+                    }
+                }
+            }
+        });
 
         let offsetLeft = 0;
         let offsetRight = 0;
@@ -325,9 +611,56 @@ function getMatchSnippet(string: string, term: string, numOfWords = 6) {
         return {
             isToLeftEnd,
             isToRightEnd,
-            snippet: string.slice(left + offsetLeft, right + offsetRight) // return match
+            // return match
+            snippet: string.slice(left + offsetLeft, right + offsetRight)
         };
     }
 
     return; // return nothing
+}
+
+function getLongestThreeMatches(query: string, src: string, matchIndices: readonly RangeTuple[]) {
+    let words = [];
+
+    //To find the match of longest query word manually
+    if (/[_-]+|\s+/.test(query)) {
+        words = query.split(/[_-]+|\s+/);
+        words.filter(item => item).sort((a, b) => a.length < b.length ? 1 : -1);
+    }
+
+    let arr = matchIndices.map(item => {
+        const [start, end] = item;
+
+        return {
+            match: src.slice(start, end + 1),
+            index: item,
+            length: end - start + 1
+        };
+    });
+
+    arr = arr.filter(item => item).sort((a, b) => a.length < b.length ? 1 : -1);
+
+    // When fuzzy search is triggered, it should have one word at least
+    const minMatchNumber = Math.max(1, words.length);
+
+    return arr.slice(0, Math.min(minMatchNumber, 3) * 2);
+}
+
+function markMatchByIndex(src: string, start: number, end: number): string {
+    const textHead = src.slice(0, start);
+    const matchStr = src.slice(start, end + 1);
+    const textTail = src.slice(end + 1);
+
+    return `${textHead}<mark class='highlight'>${matchStr}</mark>${textTail}`
+}
+
+function isNewIndexValid(newIndex: number, oldIndex: number): boolean {
+    const mark = `<mark class='highlight'></mark>`;
+    const diff = newIndex - oldIndex;
+
+    // Only three matches at most.
+    // For the third match, there are two mark inserted at most.
+    return diff === 0 ||
+        diff === mark.length ||
+        diff === mark.length * 2;
 }
