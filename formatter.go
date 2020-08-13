@@ -52,10 +52,10 @@ type JSONInfo struct {
 }
 
 // 格式化json文件的入口
-func Parser(jsonPath string) string {
+func Parser(jsonPath string, versionName string, pageUID string) string {
 	v := JSONInfo{}
 	Load(jsonPath, &v)
-	return Render(v.Document)
+	return Render(v.Document, versionName, pageUID)
 }
 
 // 读取json文件

@@ -31,13 +31,15 @@ export type BlockData = {
 }
 
 export const Block: React.SFC<Partial<{
-    type: HeadType | BlockType | ListType | CodeType | BlockquoteType | ImageType | TableType | HintType | PageRefType | ApiMethodType | TabsType | MathType | FileType;
-    children: any;
+    type: HeadType | BlockType | ListType | CodeType | BlockquoteType | ImageType | TableType | HintType | PageRefType | ApiMethodType | TabsType | MathType | FileType
+    children: any
     data: BlockData
-}>> = ({ type, children, data }) => {
+    version: string
+    pageUID: string
+}>> = ({ type, children, data, version, pageUID }) => {
     switch (checkBlockType(type)) {
         case 'heading':
-            return <RenderHead type={type as HeadType} data={data}>{children}</RenderHead>
+            return <RenderHead type={type as HeadType} data={data} version={version!} pageUID={pageUID!}>{children}</RenderHead>
         case 'list':
             return <RenderList type={type as ListType} data={data}>{children}</RenderList>
         case 'code':
