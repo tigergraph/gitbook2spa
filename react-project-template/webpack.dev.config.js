@@ -1,7 +1,7 @@
-const path = require('path')
-const OpenBrowserPlugin = require('open-browser-webpack-plugin')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const webpack = require('webpack')
+const path = require('path');
+const OpenBrowserPlugin = require('open-browser-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
 
 module.exports = {
     devtool: "eval",
@@ -14,7 +14,7 @@ module.exports = {
         filename: "[name].js"
     },
     plugins: [
-        new OpenBrowserPlugin({ url: "http://localhost:8080" }),
+        // new OpenBrowserPlugin({ url: "http://localhost:8080" }),
         new webpack.DefinePlugin({
             STATIC_PATH: "''"
         }),
@@ -29,6 +29,7 @@ module.exports = {
         historyApiFallback: {
             index: './index.html'
         },
+        hot: true
     },
     module: {
         rules: [
@@ -82,4 +83,4 @@ module.exports = {
     stats: {
         colors: true
     }
-}
+};
