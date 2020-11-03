@@ -1,0 +1,14 @@
+.image {
+    display: block;
+    max-height: 60vh;
+    max-width: 100%;
+    margin-bottom: 16px;
+    object-fit: contain;
+}
+
+.imageCaption {
+    margin-top: 8px;
+    text-align: center;
+    font-size: 16px;
+    color: rgb(157, 170, 182);
+}
