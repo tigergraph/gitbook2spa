@@ -14,6 +14,7 @@ declare module '@ant-design/icons';
 declare module 'react-code-blocks';
 declare module '*.css';
 declare module '*.json';
+declare module '*.js';
 
 declare type Space = {
     name: string;

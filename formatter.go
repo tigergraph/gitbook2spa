@@ -24,6 +24,7 @@ type Data struct {
 	Href    string    `json:"href,omitempty"`
 	Checked *bool     `json:"checked,omitempty"`
 	AssetID string    `json:"assetID,omitempty"`
+	ImgSize string    `json:"size,omitempty"`
 	PageID  string    `json:"pageID,omitempty"`
 	Caption string    `json:"caption,omitempty"`
 	Aligns  *[]string `json:"aligns,omitempty"`

@@ -1,85 +1,117 @@
 import * as React from 'react';
-import { style } from 'typestyle'
-import { findPage } from '@libs/findPage';
-import { InlineMath } from 'react-katex';
 import { useLocation, useHistory } from 'react-router';
+import { InlineMath } from 'react-katex';
+
+import { findPage } from '@libs/findPage';
 import { getVersionPage } from './Sider';
 
-interface LinkData {
+import assetsMap from '@gitbook/assets.js';
+
+import styles from '@styles/inline-type.module.css';
+
+interface InlineData {
     href?: string
     code?: string
     assetID?: string
+    size?: 'original' | 'line'
     formula?: string
     pageID?: string
 }
 
-type LinkType<T> = {
+type InlineType<T> = {
     type: 'link' | 'emoji' | 'inline-image' | 'inline-math'
-    data?: LinkData
+    data?: InlineData
 } & T
 
-export const Inline: React.SFC<LinkType<Partial<{
+export const Inline: React.FC<InlineType<Partial<{
     children: any
 }>>> = ({ data, type, children }) => {
-    const emoji = data?.code && eval("'" + `&#x${data?.code};`.replace(/&#x(.*?);/g, "\\u$1") + "'")
     switch (type) {
         case "emoji":
-            return <span>
-                <span style={{ marginRight: "8px" }}>{emoji}</span>
-                {children}
-            </span>
+            return <Emoji data={data}>{children}</Emoji>;
         case "link":
-            return renderLinkContainer(data, children);
+            return <LinkContainer data={data}>{children}</LinkContainer>;
         case "inline-image":
-            return <span>
-                none-inline-image
-                {children}
-            </span>
+            return <InlineImage data={data}/>;
         case "inline-math":
-            return (() => {
-                const formula = data?.formula && eval("'" + `${data?.formula}`.replace(/\\/g, "\\\\") + "'")
-                return !!formula ? <InlineMath>{formula}</InlineMath> : null
-            })()
+            return <MathFormula data={data}/>;
         default:
-            return children
+            return children;
     }
-}
+};
 
+const Emoji: React.FC<{ data?: InlineData, children: any }> = ({ data, children }) => {
+    const emoji = data?.code && eval("'" + `&#x${data?.code};`.replace(/&#x(.*?);/g, "\\u$1") + "'");
 
-const renderLinkContainer = (data?: LinkData, child?: JSX.Element) => {
-    const [showUnderLine, setShowUnderLine] = React.useState(false)
+    return (
+        <div className='inline-block'>
+            <span style={{ marginRight: "8px" }}>{emoji}</span>
+            {children}
+        </div>
+    );
+};
+
+const LinkContainer: React.FC<{ data?: InlineData, children: any }> = ({ data, children }) => {
+    const [showUnderLine, setShowUnderLine] = React.useState(false);
     const location = useLocation();
     const history = useHistory();
-    const versionName = getVersionPage(location.pathname)?.version!
-    return <span
-        onMouseEnter={e => setShowUnderLine(true)}
-        onMouseLeave={e => setShowUnderLine(false)}
-        className={styles.clearPTagStyle}
-        style={{
-            cursor: "pointer",
-            color: "rgb(252, 108, 4)",
-            position: "relative",
-            textDecorationLine: showUnderLine ? "underline" : undefined,
-            wordBreak: "break-word"
-        }}
-        onClick={() => {
-            const pageInfo = findPage(data?.pageID!, versionName)
-            if (!!data?.pageID && !data?.href && !!pageInfo) {
-                !!pageInfo.path && history.push(pageInfo.uid)
-                return;
-            }
-            window.open(data?.href)
-        }}>
-        {child}
-    </span>
-}
+    const versionName = getVersionPage(location.pathname)?.version!;
 
-const styles = {
-    clearPTagStyle: style({
-        $nest: {
-            "&>p": {
-                display: "inline"
-            }
+    const handleClickOnLink = () => {
+        const pageInfo = findPage(data?.pageID!, versionName);
+
+        if (!!data?.pageID && !data?.href && !!pageInfo) {
+            !!pageInfo.path && history.push(pageInfo.uid);
+            return;
         }
-    })
-}
+
+        window.open(data?.href)
+    };
+
+    return (
+        <span
+            className={styles.link}
+            style={{
+                textDecorationLine: showUnderLine ? "underline" : undefined
+            }}
+            data-href={data?.href}
+            onMouseEnter={() => setShowUnderLine(true)}
+            onMouseLeave={() => setShowUnderLine(false)}
+            onClick={handleClickOnLink}
+        >
+            {children}
+        </span>
+    );
+};
+
+const InlineImage: React.FC<{ data?: InlineData }> = ({ data }) => {
+    const origin_key = Object.keys(assetsMap).find(k => !!data?.assetID && k.startsWith(data?.assetID));
+
+    const pathName = origin_key ? assetsMap[origin_key]?.Name : '';
+    const url = origin_key ? `/assets/${pathName}` : undefined;
+    const imgName = origin_key
+        ? pathName.replace(new RegExp(`${data?.assetID}-(\\w+)[.\\w]+$`), '$1')
+        : 'image';
+
+    return (
+        <span className={styles.inlineImageWrapper}>
+            {
+                !!origin_key &&
+                <img
+                    className={styles.inlineImage}
+                    style={{
+                        maxHeight: data?.size === 'line' ? 28 : 40
+                    }}
+                    src={url}
+                    alt={imgName}
+                />
+            }
+        </span>
+    );
+};
+
+const MathFormula: React.FC<{ data?: InlineData }> = ({ data }) => {
+    const formula = data?.formula && eval("'" + `${data?.formula}`.replace(/\\/g, "\\\\") + "'");
+
+    return !!formula ? <InlineMath>{formula}</InlineMath> : null;
+};

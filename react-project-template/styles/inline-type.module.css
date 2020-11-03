@@ -1,0 +1,26 @@
+.link {
+    position: relative;
+    word-break: break-word;
+    color: rgb(252, 108, 4);
+    cursor: pointer;
+}
+
+.link > p {
+    display: inline
+}
+
+.inlineImageWrapper {
+    display: inline-block;
+    border: 2px solid transparent;
+    margin: 0;
+    padding: 0;
+    border-radius: 3px;
+    vertical-align: middle;
+}
+
+.inlineImage {
+    display: inline-block;
+    padding: 3px;
+    max-width: 300px;
+    vertical-align: middle;
+}
