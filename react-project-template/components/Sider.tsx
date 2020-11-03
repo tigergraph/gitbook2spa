@@ -154,6 +154,14 @@ export const Sider: React.FC = ({ children }) => {
         currentScrollTopOfSideNav = $sidenav ? $sidenav.scrollTop : 0;
     };
 
+    // After searching in change log page with duplicate anchor,
+    // the url with fragment identifier in link element `<a href='#id'/>`, will become `window.location.origin`,
+    // Not the current url. It is weird.
+    // To fix the issue, manually change the hash of url in browser.
+    const jumpToAnchor = (hash: string) => {
+        window.location.hash = hash;
+    };
+
     return (
         <div className="main-container">
             <main className="main">
@@ -233,11 +241,9 @@ export const Sider: React.FC = ({ children }) => {
                         {Array.from(anchorLinks.current).map((ele) => {
                             if (ele.querySelector("span")?.textContent) {
                                 const level = (ele as any).dataset.level;
-                                const pattern = /\s+|[.,:]/g;
-                                const href = `#${(ele.textContent || "")
-                                    .toLowerCase()
-                                    .replace(pattern, "_")}`;
-                                const onSelect = location.hash === href;
+                                const anchorID = `${ele.id}`;
+                                const onSelect = location.hash === `#${anchorID}`;
+
                                 switch (level) {
                                     case "one":
                                         return (
@@ -260,7 +266,6 @@ export const Sider: React.FC = ({ children }) => {
                                                             }}
                                                         >
                                                             <a
-                                                                href={href}
                                                                 style={{
                                                                     color:
                                                                         isEnter || onSelect
@@ -271,6 +276,7 @@ export const Sider: React.FC = ({ children }) => {
                                                                     fontWeight: 500,
                                                                     lineHeight: "21px",
                                                                 }}
+                                                                onClick={() => jumpToAnchor(anchorID)}
                                                             >
                                                                 {ele.textContent}
                                                             </a>
@@ -300,7 +306,6 @@ export const Sider: React.FC = ({ children }) => {
                                                             }}
                                                         >
                                                             <a
-                                                                href={href}
                                                                 style={{
                                                                     color:
                                                                         isEnter || onSelect
@@ -311,6 +316,7 @@ export const Sider: React.FC = ({ children }) => {
                                                                     fontWeight: 500,
                                                                     lineHeight: "18px",
                                                                 }}
+                                                                onClick={() => jumpToAnchor(anchorID)}
                                                             >
                                                                 {ele.textContent}
                                                             </a>

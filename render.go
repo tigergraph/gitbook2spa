@@ -5,20 +5,33 @@ import (
 )
 
 // 渲染block type的json结构
-func RenderBlock(n *NodeTree, child string) string {
+func RenderBlock(n *NodeTree, child string, versionName string, pageUID string) string {
+	pageInfo := []AttrStringStruct{{
+		Key: "version",
+		Value: versionName,
+	}}
+
+	pageInfo = append(pageInfo, AttrStringStruct{
+		Key: "pageUID",
+		Value: pageUID,
+	})
+
 	attrWithType := []AttrStringStruct{{
 		Key:   "type",
 		Value: n.Type,
 	}}
+
 	attrWithData := []AttrInterfaceStruct{{
 		Key:   "data",
 		Value: n.Data,
 	}}
+
 	attrWithKey := []AttrInterfaceStruct{{
 		Key:   "key",
 		Value: n.Key,
 	}}
-	return H("Block", child, AttrString(attrWithType)+AttrInterface(attrWithData)+AttrInterface(attrWithKey))
+
+	return H("Block", child, AttrString(pageInfo)+AttrString(attrWithType)+AttrInterface(attrWithData)+AttrInterface(attrWithKey))
 }
 
 // 渲染document type的json结构

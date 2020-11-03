@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"encoding/json"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -13,7 +14,7 @@ type indexNode interface {
 	traverseChild() []NodeTree
 }
 
-// Generate base index JSON from `revision.json` with specified version name
+// Generate root index JSON from `revision.json` with specified version name
 func ProcessRevision(revision Revision, versionName string) []IndexData {
 	result := []IndexData{}
 
@@ -61,7 +62,7 @@ func traversePages(parentPage VersionInfo, result *[]IndexData) {
 var newSection = Section{}
 
 // Use `resultCollector` to collect index data
-func (n *NodeTree) CollectIndexContent(resultCollector *[]Section, meetHeading bool, isTopLevel bool) string {
+func (n *NodeTree) CollectIndexContent(resultCollector *[]Section, meetHeading bool, isTopLevel bool, anchorMap map[string]int) string {
 	if n.Type == "heading-1" || n.Type == "heading-2" {
 		// collect section before
 		// There are two situations here: no heading but has content or has both heading and content.
@@ -83,6 +84,14 @@ func (n *NodeTree) CollectIndexContent(resultCollector *[]Section, meetHeading b
 		reg := regexp.MustCompile(`\s+|[.,:]`)
 		anchor := reg.ReplaceAllString(src, "_")
 
+        // store the number of duplicate anchor
+		anchorMap[anchor] ++
+
+		if anchorMap[anchor] != 1 {
+		    // add number suffix to duplicate anchor
+			anchor += "_" + strconv.Itoa(anchorMap[anchor])
+		}
+
 		// create a new section
 		newSection = Section{
 			Title:   title,
@@ -97,10 +106,10 @@ func (n *NodeTree) CollectIndexContent(resultCollector *[]Section, meetHeading b
 	if len(n.Nodes) > 0 {
 		for i, curNode := range n.Nodes {
 			if curNode.Type == "paragraph" {
-				strAfterTrim := strings.TrimSpace(curNode.CollectIndexContent(resultCollector, meetHeading, false))
+				strAfterTrim := strings.TrimSpace(curNode.CollectIndexContent(resultCollector, meetHeading, false, anchorMap))
 				newSection.Content += strAfterTrim + " "
 			} else {
-				newSection.Content += curNode.CollectIndexContent(resultCollector, meetHeading, false)
+				newSection.Content += curNode.CollectIndexContent(resultCollector, meetHeading, false, anchorMap)
 			}
 
 			// Add the last section
