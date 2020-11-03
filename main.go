@@ -167,13 +167,14 @@ func json2tsx() {
 			formatTargetVersion(
 				filepath.Join(originDirPath, versionName),
 				filepath.Join(targetDirPath, versionName),
+				versionName,
 			)
 		}
 	}
 }
 
 // 获得指定版本内的json文件
-func formatTargetVersion(versionPath string, targetDir string) {
+func formatTargetVersion(versionPath string, targetDir string, versionName string) {
 	// Read dir under "/build_temp/src/gitbook/versions/${versionName}"
 	fileinfoList, err := ioutil.ReadDir(versionPath)
 
@@ -186,12 +187,12 @@ func formatTargetVersion(versionPath string, targetDir string) {
 	for i := range fileinfoList {
 		fileName := fileinfoList[i].Name()
 		jsonPath := filepath.Join(versionPath, fileName)
-		basenamePrefix := GetBasenamePrefix(jsonPath)
-		if WriteFile(filepath.Join(targetDir, basenamePrefix+".tsx"), makeTSX(jsonPath)) {
+		pageUID := GetBasenamePrefix(jsonPath)
+		if WriteFile(filepath.Join(targetDir, pageUID+".tsx"), makeTSX(jsonPath, versionName, pageUID)) {
 			// Remove document in JSON format after transformation to .tsx is finished
 			os.Remove(jsonPath)
 		} else {
-			log.Warn(basenamePrefix, ".tsx creation failed")
+			log.Warn(pageUID, ".tsx creation failed")
 		}
 		bar.Increment()
 	}
@@ -245,8 +246,8 @@ func makeHtmlTemplate() {
 }
 
 // 将转译好的jsx字符串写至tsx模版文件
-func makeTSX(jsonPath string) string {
-	htmlDom := Parser(jsonPath)
+func makeTSX(jsonPath string, versionName string, pageUID string) string {
+	htmlDom := Parser(jsonPath, versionName, pageUID)
 	return RenderTsxTemplate(htmlDom)
 }
 
@@ -471,7 +472,7 @@ func genSearchIndex(versionName string) {
 
 		// Fill content to index
 		sections := []Section{}
-		doc.Document.CollectIndexContent(&sections, false, true)
+		doc.Document.CollectIndexContent(&sections, false, true, map[string]int{})
 
 		versionIndex[i].Sections = sections
 	}
