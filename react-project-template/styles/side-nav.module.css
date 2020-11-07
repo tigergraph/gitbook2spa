@@ -1,0 +1,12 @@
+.navItemIcon {
+    margin: -6px;
+    padding: 6px;
+}
+
+.navItemIcon svg {
+    fill: rgb(157, 170, 182);
+}
+
+.navItemIcon:hover svg {
+    fill: rgb(92, 105, 117);
+}

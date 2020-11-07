@@ -79,11 +79,67 @@
   border-right: 1px solid #E6ECF1;
 }
 .content {
-  margin: 0 88px;
+  margin: 0 88px 300px;
 }
 
 .table-of-content {
   max-height: calc(100vh - 40px); /* reduce the top padding 40px 10px when showing horizontal scrollbar */
   padding-top: 30px;
   border-left: 1px solid #E6ECF1;
+}
+
+.toc-item-wrapper {
+  line-height: 15px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.toc-item-wrapper.level-1 {
+  padding: 4px 16px 4px 24px;
+  border-left: none;
+}
+
+.toc-item-wrapper.level-1.active {
+  padding: 4px 16px 4px 22px;
+  border-left: 2px solid rgb(252, 108, 4);
+}
+
+.toc-item-wrapper.level-2 {
+  padding: 4px 16px 4px 40px;
+  border-left: none;
+}
+
+.toc-item-wrapper.level-2.active {
+  padding: 4px 16px 4px 38px;
+  border-left: 2px solid rgb(252, 108, 4);
+}
+
+.toc-item,
+.toc-item:hover {
+  color: rgb(116, 129, 141);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 21px;
+}
+
+.toc-item.active {
+  color: rgb(252, 108, 4);
+}
+
+
+.inline-block {
+  display: inline-block;
+}
+
+.vertical-center-block {
+  display: flex;
+  align-items: center;
+}
+
+.tg-main-color,
+.tg-main-color:hover {
+  color: #FC6C04;
 }

@@ -9,9 +9,9 @@ export const Recommend: React.SFC<Partial<{
 }>> = props => {
     const history = useHistory();
     const location = useLocation();
-    const path = getVersionPage(location.pathname)?.path!
-    const versionName = getVersionPage(location.pathname)?.version!
-    const pageInfo = findPage(path, versionName, 'path')
+    const path = getVersionPage(location.pathname)?.path!;
+    const versionName = getVersionPage(location.pathname)?.version!;
+    const pageInfo = findPage(path, versionName, 'path');
 
     if (!pageInfo?.pages?.length) {
         return null
@@ -23,33 +23,38 @@ export const Recommend: React.SFC<Partial<{
         </div>
         <Row justify='space-between'>
             {
-                pageInfo?.pages?.map(childPage => {
-                    return <Col
-                        span={11}
-                        onClick={() => {
-                            history.push(`/${versionName}/${childPage.path}`)
-                        }}
-                        style={{
-                            fontSize: '16px',
-                            fontFamily: "Content-font, Roboto, sans-serif",
-                            lineHeight: 1.5,
-                            padding: "16px",
-                            boxShadow: "rgba(116, 129, 141, 0.1) 0px 3px 8px 0px",
-                            marginBottom: "20px",
-                            cursor: "pointer",
-                            border: "1px solid #E6ECF1"
-                        }}>
-                        <div style={{ fontWeight: 500, color: "rgb(36, 42, 49)" }}>
-                            {childPage.title}
-                        </div>
-                        {
-                            !!childPage.description && <div style={{ color: "rgb(157, 170, 182)" }}>
-                                {childPage.description}
+                pageInfo?.pages?.map((childPage, index) => {
+                    return (
+                        <Col
+                            key={index}
+                            span={11}
+                            onClick={() => {
+                                history.push(`/${versionName}/${childPage.path}`)
+                            }}
+                            style={{
+                                fontSize: '16px',
+                                fontFamily: "Content-font, Roboto, sans-serif",
+                                lineHeight: 1.5,
+                                padding: "16px",
+                                boxShadow: "rgba(116, 129, 141, 0.1) 0px 3px 8px 0px",
+                                marginBottom: "20px",
+                                cursor: "pointer",
+                                border: "1px solid #E6ECF1"
+                            }}
+                        >
+                            <div style={{ fontWeight: 500, color: "rgb(36, 42, 49)" }}>
+                                {childPage.title}
                             </div>
-                        }
-                    </Col>
+
+                            {
+                                !!childPage.description && <div style={{ color: "rgb(157, 170, 182)" }}>
+                                    {childPage.description}
+                                </div>
+                            }
+                        </Col>
+                    )
                 })
             }
         </Row>
     </div>
-}
+};

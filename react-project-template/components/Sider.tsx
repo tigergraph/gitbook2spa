@@ -1,9 +1,29 @@
 import * as React from "react";
-import { OnHover } from "@libs/OnHover.tsx";
-import { RightOutlined, DownOutlined } from "@ant-design/icons";
 import { useHistory, useLocation } from "react-router-dom";
+import { DownOutlined, RightOutlined } from "@ant-design/icons";
+import Icon from '@ant-design/icons';
+
+import { OnHover } from "@libs/OnHover.tsx";
+
+import styles from '@styles/side-nav.module.css';
 
 let currentScrollTopOfSideNav = 0;
+
+const ExternalSvg = () => (
+    <svg
+        className="icon"
+        viewBox="0 0 1024 1024"
+        p-id="4392"
+        width="1em"
+        height="1em"
+    >
+        <path
+            d="M995.2 0L668.8 0.34a28.8 28.8 0 0 0-28.8 28.8v66.62a28.8 28.8 0 0 0 29.38 28.8l147.26-5.44 4.12 4.12-557.72 557.74a24 24 0 0 0 0 34l46 46a24 24 0 0 0 34 0l557.72-557.74 4.12 4.12-5.44 147.26a28.8 28.8 0 0 0 28.8 29.38h66.62a28.8 28.8 0 0 0 28.8-28.8L1024 28.8A28.8 28.8 0 0 0 995.2 0zM864 576h-32a32 32 0 0 0-32 32v308a12 12 0 0 1-12 12H108a12 12 0 0 1-12-12V236a12 12 0 0 1 12-12h308a32 32 0 0 0 32-32V160a32 32 0 0 0-32-32H96a96 96 0 0 0-96 96v704a96 96 0 0 0 96 96h704a96 96 0 0 0 96-96V608a32 32 0 0 0-32-32z"
+            p-id="4393" />
+    </svg>
+);
+
+const ExternalIcon:React.FC<{ className?: any }> = props => <Icon {...props} component={ExternalSvg} />;
 
 const getParentPath = (
     pages: Pages,
@@ -107,16 +127,18 @@ export const Sider: React.FC = ({ children }) => {
 
     const versionName = getVersionPage(location.pathname)?.version!;
     const pageRoutes = revision.versions[versionName]?.page;
-    const anchorLinks = React.useRef<HTMLCollectionOf<Element>>(
-        document.getElementsByClassName("heading-anchor-link")
-    );
+
     const [loading, setLoading] = React.useState(true);
     const [showVersion, setShowVersion] = React.useState(false);
+    const [anchorLinks, setAnchorLinks] = React.useState(
+        [...document.getElementsByClassName("heading-anchor-link")]
+    );
 
     const currentVersionItem = versionList.filter(
         (v) => getVersionPage(location.pathname)?.version === v
     )?.[0];
 
+    // Restore the scroll position of side navigation on the left.
     React.useEffect(() => {
         const unListen = history.listen((location, action) => {
             if (action === "PUSH") {
@@ -137,6 +159,18 @@ export const Sider: React.FC = ({ children }) => {
         };
     }, []);
 
+    // For the link with hash fragment, scroll to the heading element with related id.
+    React.useEffect(() => {
+        const hash = history.location.hash;
+
+        if (hash) {
+            setTimeout(() => {
+                const elem = document.querySelector(hash);
+                elem && elem.scrollIntoView();
+            }, 150);
+        }
+    }, []);
+
     React.useEffect(() => {
         if (loading) {
             formatPageRoutes(
@@ -148,18 +182,19 @@ export const Sider: React.FC = ({ children }) => {
         }
     }, [loading]);
 
+    // To make sure the duplicate id is transformed, get all the anchor links after page rendering.
+    React.useEffect(() => {
+        setTimeout(() => {
+            setAnchorLinks(
+                [...document.getElementsByClassName("heading-anchor-link")]
+            );
+        }, 200);
+    }, []);
+
     const recordSidenavScrollingPosition = () => {
         const $sidenav = document.querySelector("div.side-nav");
 
         currentScrollTopOfSideNav = $sidenav ? $sidenav.scrollTop : 0;
-    };
-
-    // After searching in change log page with duplicate anchor,
-    // the url with fragment identifier in link element `<a href='#id'/>`, will become `window.location.origin`,
-    // Not the current url. It is weird.
-    // To fix the issue, manually change the hash of url in browser.
-    const jumpToAnchor = (hash: string) => {
-        window.location.hash = hash;
     };
 
     return (
@@ -238,92 +273,48 @@ export const Sider: React.FC = ({ children }) => {
 
                 <div className="table-of-content-container sticky-col-wrapper">
                     <div className="table-of-content sticky-col-with-hidden-scrollbar">
-                        {Array.from(anchorLinks.current).map((ele) => {
+                        {anchorLinks.length !== 0 && anchorLinks.map((ele, index) => {
                             if (ele.querySelector("span")?.textContent) {
                                 const level = (ele as any).dataset.level;
-                                const anchorID = `${ele.id}`;
-                                const onSelect = location.hash === `#${anchorID}`;
+                                const href = `#${ele.id}`;
+                                const isActive = location.hash === href;
 
                                 switch (level) {
                                     case "one":
                                         return (
-                                            <OnHover>
-                                                {(isEnter: boolean) => {
-                                                    return (
-                                                        <div
-                                                            style={{
-                                                                lineHeight: "15px",
-                                                                marginBottom: "8px",
-                                                                padding: onSelect
-                                                                    ? "4px 16px 4px 22px"
-                                                                    : "4px 16px 4px 24px",
-                                                                borderLeft: onSelect
-                                                                    ? "2px solid rgb(252, 108, 4)"
-                                                                    : "none",
-                                                                overflow: "hidden",
-                                                                whiteSpace: "nowrap",
-                                                                textOverflow: "ellipsis",
-                                                            }}
-                                                        >
-                                                            <a
-                                                                style={{
-                                                                    color:
-                                                                        isEnter || onSelect
-                                                                            ? "rgb(252, 108, 4)"
-                                                                            : "rgb(116, 129, 141)",
-                                                                    textDecoration: "none",
-                                                                    fontSize: "12px",
-                                                                    fontWeight: 500,
-                                                                    lineHeight: "21px",
-                                                                }}
-                                                                onClick={() => jumpToAnchor(anchorID)}
-                                                            >
-                                                                {ele.textContent}
-                                                            </a>
-                                                        </div>
-                                                    );
-                                                }}
-                                            </OnHover>
+                                            <div
+                                                key={index}
+                                                className={
+                                                    isActive
+                                                        ? 'toc-item-wrapper level-1 active'
+                                                        : 'toc-item-wrapper level-1'
+                                                }
+                                            >
+                                                <a
+                                                    className={ isActive ? 'toc-item active' : 'toc-item' }
+                                                    href={href}
+                                                >
+                                                    {ele.textContent}
+                                                </a>
+                                            </div>
                                         );
                                     case "two":
                                         return (
-                                            <OnHover>
-                                                {(isEnter: boolean) => {
-                                                    return (
-                                                        <div
-                                                            style={{
-                                                                lineHeight: "15px",
-                                                                marginBottom: "8px",
-                                                                padding: onSelect
-                                                                    ? "4px 16px 4px 38px"
-                                                                    : "4px 16px 4px 40px",
-                                                                borderLeft: onSelect
-                                                                    ? "2px solid rgb(252, 108, 4)"
-                                                                    : "none",
-                                                                overflow: "hidden",
-                                                                whiteSpace: "nowrap",
-                                                                textOverflow: "ellipsis",
-                                                            }}
-                                                        >
-                                                            <a
-                                                                style={{
-                                                                    color:
-                                                                        isEnter || onSelect
-                                                                            ? "rgb(252, 108, 4)"
-                                                                            : "rgb(116, 129, 141)",
-                                                                    textDecoration: "none",
-                                                                    fontSize: "12px",
-                                                                    fontWeight: 500,
-                                                                    lineHeight: "18px",
-                                                                }}
-                                                                onClick={() => jumpToAnchor(anchorID)}
-                                                            >
-                                                                {ele.textContent}
-                                                            </a>
-                                                        </div>
-                                                    );
-                                                }}
-                                            </OnHover>
+                                            <div
+                                                key={index}
+                                                className={
+                                                    isActive
+                                                        ? 'toc-item-wrapper level-2 active'
+                                                        : 'toc-item-wrapper level-2'
+                                                }
+                                            >
+                                                <a
+                                                    className={ isActive ? 'toc-item active' : 'toc-item' }
+                                                    href={href}
+                                                >
+                                                    {ele.textContent}
+                                                </a>
+                                            </div>
                                         );
                                     default:
                                         return null;
@@ -502,11 +493,13 @@ const SiderItemRenderUI: React.FC<{
                 }
 
                 if (kind === "link") {
+                    // If it is an external link, open it in new window.
                     window.open(href);
+                } else {
+                    // Otherwise, go to other page in document
+                    const nextPath = targetPath();
+                    nextPath && history.push(nextPath);
                 }
-
-                const nextPath = targetPath();
-                !!nextPath && history.push(nextPath);
             }}
         >
             {(onHover) => {
@@ -524,16 +517,16 @@ const SiderItemRenderUI: React.FC<{
                     >
                         <IndentLayout style={{ padding: "8px 0px 8px 16px" }}>
                             {hasChildren
-                            ? (
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        flexDirection: "row",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                        paddingRight: "24px",
-                                    }}
-                                >
+                                ? (
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            flexDirection: "row",
+                                            alignItems: "center",
+                                            justifyContent: "space-between",
+                                            paddingRight: "24px",
+                                        }}
+                                    >
                                     <span
                                         style={{
                                             fontSize: "14px",
@@ -543,24 +536,36 @@ const SiderItemRenderUI: React.FC<{
                                     >
                                         {title}
                                     </span>
-                                    {onOpen ? (
-                                        <DownOutlined style={{ color: "rgba(157,170,182,0.8)" }} />
-                                    ) : (
-                                        <RightOutlined style={{ color: "rgba(157,170,182,0.8)" }} />
-                                    )}
-                                </div>
-                            ) : (
-                                <div
-                                    style={{
-                                        fontSize: "14px",
-                                        fontWeight: 500,
-                                        lineHeight: "21px",
-                                        paddingRight: "24px",
-                                    }}
-                                >
-                                    {title}
-                                </div>
-                            )}
+
+                                        <span className={styles.navItemIcon}>
+                                        {onOpen ? (
+                                            <DownOutlined />
+                                        ) : (
+                                            <RightOutlined />
+                                        )}
+                                    </span>
+                                    </div>
+                                ) : (
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            fontSize: "14px",
+                                            fontWeight: 500,
+                                            lineHeight: "21px",
+                                            paddingRight: "24px",
+                                        }}
+                                    >
+                                        {title}
+
+                                        {
+                                            kind === 'link' &&
+                                            <span className={styles.navItemIcon}>
+                                               <ExternalIcon />
+                                            </span>
+                                        }
+                                    </div>
+                                )}
                         </IndentLayout>
                     </div>
                 );

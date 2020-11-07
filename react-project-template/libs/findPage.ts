@@ -2,13 +2,16 @@ export function findPage(v: string, versionName: string, k?: keyof VersionInfo):
     if (!revision) {
         return undefined;
     }
+
     const pageRoutes = revision.versions[versionName]?.page;
     const key = k! || "uid" || "path";
+
     if (!v) {
-        return undefined
+        return undefined;
     }
+
     if (pageRoutes?.[key] === v) {
-        return pageRoutes
+        return pageRoutes;
     } else {
         return mapPageInfo(pageRoutes, v, k)
     }
@@ -17,12 +20,13 @@ export function findPage(v: string, versionName: string, k?: keyof VersionInfo):
 function mapPageInfo(page: VersionInfo, v: string, k?: keyof VersionInfo): VersionInfo | undefined {
     const key = k! || "uid" || "path";
     if (!page) {
-        return undefined
+        return undefined;
     }
 
-    const targetPage = page.pages.find(p => p[key] === v)
+    const targetPage = page.pages.find(p => p[key] === v);
+
     if (!!targetPage) {
-        return targetPage
+        return targetPage;
     }
 
     for (let i = 0; i < page.pages.length; i++) {

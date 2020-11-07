@@ -139,14 +139,6 @@ export const Search: React.FC = () => {
 
         history.push(path);
 
-        // scroll to anchor element
-        if (anchor) {
-            setTimeout(() => {
-                const elem = document.querySelector(`#${anchor}`);
-                elem && elem.scrollIntoView();
-            }, 150);
-        }
-
         setVisible(false);
     };
 

@@ -2,8 +2,8 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -81,14 +81,31 @@ func (n *NodeTree) CollectIndexContent(resultCollector *[]Section, meetHeading b
 		}
 
 		src := strings.ToLower(title)
-		reg := regexp.MustCompile(`\s+|[.,:]`)
-		anchor := reg.ReplaceAllString(src, "_")
 
-        // store the number of duplicate anchor
-		anchorMap[anchor] ++
+		// add a space between 'v' and 'version number'
+		versionRegexp := regexp.MustCompile(`v(\d+)`)
+		anchor := versionRegexp.ReplaceAllString(src, "v $1")
+
+		// replace '&' with 'and'
+		anchor = strings.ReplaceAll(anchor, "&", "and")
+
+		// replace all the special characters with space
+		patter1 := `[,.?:()'"/!*+=-\[\]]`
+		reg1 := regexp.MustCompile(patter1)
+		anchor = reg1.ReplaceAllString(anchor, " ")
+
+		// replace all spaces with dash
+		patter2 := `\b\s+\b`
+		reg2 := regexp.MustCompile(patter2)
+		anchor = reg2.ReplaceAllString(anchor, "-")
+
+		anchor = strings.TrimSpace(anchor)
+
+		// store the number of duplicate anchor
+		anchorMap[anchor]++
 
 		if anchorMap[anchor] != 1 {
-		    // add number suffix to duplicate anchor
+			// add number suffix to duplicate anchor
 			anchor += "_" + strconv.Itoa(anchorMap[anchor])
 		}
 

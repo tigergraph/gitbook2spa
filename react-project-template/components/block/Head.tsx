@@ -19,14 +19,19 @@ export const RenderHead: React.FC<{ type: HeadType, data?: BlockData, version: s
     const history = useHistory();
 
     const child = ((children as any)?.props?.children);
-    const pattern = /\s+|[.,:]/g;
+    const pattern1 = /[,.?:()'"/!*+=-\[\]]/g;
+    const pattern2 = /\b\s+\b/g;
 
     if (anchor === '') {
         // init anchor
         if (typeof child === 'string') {
             setAnchor(child
                 .toLowerCase()
-                .replace(pattern, '_')
+                .replace(/v(\d+)/g, 'v $1') // add a space between 'v' and 'version number'
+                .replace(/&/g, 'and') // transform '&' into 'and'
+                .replace(pattern1, ' ') // replace all the special characters with space
+                .replace(pattern2, '-') // replace all spaces with dash
+                .trim()
             )
         }
 
@@ -37,7 +42,11 @@ export const RenderHead: React.FC<{ type: HeadType, data?: BlockData, version: s
             setAnchor(child
                 .join("")
                 .toLowerCase()
-                .replace(pattern, "_")
+                .replace(/v(\d+)/g, 'v $1')
+                .replace(/&/g, 'and')
+                .replace(pattern1, ' ')
+                .replace(pattern2, "-")
+                .trim()
             );
         }
 
@@ -46,7 +55,11 @@ export const RenderHead: React.FC<{ type: HeadType, data?: BlockData, version: s
                 .map((item) => findChildText(item))
                 .join("")
                 .toLowerCase()
-                .replace(pattern, "_")
+                .replace(/v(\d+)/g, 'v $1')
+                .replace(/&/g, 'and')
+                .replace(pattern1, ' ')
+                .replace(pattern2, "-")
+                .trim()
             );
         }
     }
