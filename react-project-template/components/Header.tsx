@@ -1,6 +1,9 @@
 import * as React from 'react'
 import { Link } from 'react-router-dom'
+
+import { getUrlInfo } from "@components/Sider";
 import { Search } from "@components/Search";
+import { getPageInfoFromRevision } from "@libs/findPage";
 
 import styles from '@styles/header.module.css';
 
@@ -17,12 +20,12 @@ export const Header: React.FC = ({ children }) => {
 
                 <div className={styles.navLayout}>
                     {
-                        space?.links?.map(link => {
+                        space?.links?.map((link, index) => {
                             if (!!link.pageID) {
                                 return <Link
                                     rel="noopener noreferrer"
                                     key={link.pageID}
-                                    to={link.pageID}
+                                    to={getUrlPath(link.pageID)}
                                     style={{
                                         color: "#FC6C04",
                                         marginRight: "35px"
@@ -31,6 +34,7 @@ export const Header: React.FC = ({ children }) => {
                                 </Link>
                             }
                             return <a
+                                key={index}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 href={link.href}
@@ -49,4 +53,11 @@ export const Header: React.FC = ({ children }) => {
         </div>
         {children}
     </React.Fragment>
-}
+};
+
+const getUrlPath = (pageID: string): string => {
+    const version = getUrlInfo(location.pathname)?.version!;
+    const pageInfo = getPageInfoFromRevision(pageID!, version, 'uid');
+
+    return `/${version}/${pageInfo?.path}`;
+};

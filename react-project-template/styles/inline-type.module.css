@@ -1,8 +1,13 @@
-.link {
+.link,
+.link:hover{
     position: relative;
     word-break: break-word;
     color: rgb(252, 108, 4);
     cursor: pointer;
+}
+
+.link:hover {
+    text-decoration: underline;
 }
 
 .link > p {

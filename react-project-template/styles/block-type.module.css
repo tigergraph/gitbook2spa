@@ -12,3 +12,29 @@
     font-size: 16px;
     color: rgb(157, 170, 182);
 }
+
+.blockLink {
+    display: flex;
+    justify-content: space-between;
+    margin: 32px 0;
+    padding: 16px;
+    border: 1px solid #e2e9ef;
+    border-radius: 3px;
+    box-shadow: rgba(116, 129, 141, 0.1) 0 3px 8px 0;
+}
+
+.blockLink:hover {
+    border: 1px solid #fc6c04;
+}
+
+.blockLinkDetail {
+    display: flex;
+    align-items: center;
+    color: rgb(157, 170, 182);
+    font-size: 12px;
+}
+
+.blockLinkIcon {
+    margin-right: 16px;
+    font-size: 24px;
+}

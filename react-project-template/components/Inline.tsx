@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { useLocation, useHistory } from 'react-router';
+import { Link, useLocation } from "react-router-dom";
 import { InlineMath } from 'react-katex';
 
-import { findPage } from '@libs/findPage';
-import { getVersionPage } from './Sider';
+import { getPageInfoFromRevision } from '@libs/findPage';
+import { getUrlInfo } from './Sider';
 
 import assetsMap from '@gitbook/assets.js';
 
@@ -44,43 +44,59 @@ const Emoji: React.FC<{ data?: InlineData, children: any }> = ({ data, children 
     const emoji = data?.code && eval("'" + `&#x${data?.code};`.replace(/&#x(.*?);/g, "\\u$1") + "'");
 
     return (
-        <div className='inline-block'>
+        <span className='inline-block'>
             <span style={{ marginRight: "8px" }}>{emoji}</span>
             {children}
-        </div>
+        </span>
     );
 };
 
 const LinkContainer: React.FC<{ data?: InlineData, children: any }> = ({ data, children }) => {
-    const [showUnderLine, setShowUnderLine] = React.useState(false);
     const location = useLocation();
-    const history = useHistory();
-    const versionName = getVersionPage(location.pathname)?.version!;
 
-    const handleClickOnLink = () => {
-        const pageInfo = findPage(data?.pageID!, versionName);
+    const TG_DOCS_URL = 'https://docs.tigergraph.com/';
+    const TG_DOCS_URL_SWITCH_TO_OTHER_VERSION = 'https://docs.tigergraph.com/v';
 
-        if (!!data?.pageID && !data?.href && !!pageInfo) {
-            !!pageInfo.path && history.push(pageInfo.uid);
-            return;
+    const version = getUrlInfo(location.pathname)?.version!;
+    const pageInfo = getPageInfoFromRevision(data?.pageID!, version, 'uid');
+
+    let isInternalLink = true;
+    let targetUrl = '';
+
+    // handle internal link to other page in the app
+    if (data?.pageID && pageInfo) {
+        targetUrl = `/${version}/${pageInfo.path}`;
+    }
+
+    // handle external link
+    if (data?.href) {
+        // when it points to external document, take it as internal link
+        if (data.href.includes(TG_DOCS_URL_SWITCH_TO_OTHER_VERSION)) {
+            // use the path with version number
+            targetUrl = data.href.replace(TG_DOCS_URL_SWITCH_TO_OTHER_VERSION, '');
+        } else if (data.href.includes(TG_DOCS_URL)) {
+            const path = data.href.replace(TG_DOCS_URL, '');
+            targetUrl = `/${version}/${path}`;
+        } else {
+            isInternalLink = false;
+            targetUrl = data.href;
         }
-
-        window.open(data?.href)
-    };
+    }
 
     return (
-        <span
-            className={styles.link}
-            style={{
-                textDecorationLine: showUnderLine ? "underline" : undefined
-            }}
-            data-href={data?.href}
-            onMouseEnter={() => setShowUnderLine(true)}
-            onMouseLeave={() => setShowUnderLine(false)}
-            onClick={handleClickOnLink}
-        >
-            {children}
-        </span>
+        isInternalLink
+            ? (
+                <Link className={styles.link} to={targetUrl}>{children}</Link>
+            ) : (
+                <a
+                    className={styles.link}
+                    href={targetUrl}
+                    target='_blank'
+                    rel='noopener noreferrer'
+                >
+                    {children}
+                </a>
+            )
     );
 };
 
@@ -94,9 +110,9 @@ const InlineImage: React.FC<{ data?: InlineData }> = ({ data }) => {
         : 'image';
 
     return (
-        <span className={styles.inlineImageWrapper}>
-            {
-                !!origin_key &&
+        origin_key
+            ? (
+                <span className={styles.inlineImageWrapper}>
                 <img
                     className={styles.inlineImage}
                     style={{
@@ -105,8 +121,8 @@ const InlineImage: React.FC<{ data?: InlineData }> = ({ data }) => {
                     src={url}
                     alt={imgName}
                 />
-            }
-        </span>
+            </span>
+            ) : null
     );
 };
 
