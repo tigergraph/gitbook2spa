@@ -1,9 +1,9 @@
 import * as React from "react";
-import { useLocation, useHistory } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import { ArrowRightOutlined } from "@ant-design/icons";
 
-import { findPage } from "@libs/findPage.ts";
-import { getVersionPage } from "@components/Sider";
+import { getPageInfoFromRevision } from "@libs/findPage.ts";
+import { getUrlInfo } from "@components/Sider";
 import { BlockData } from ".";
 
 import styles from '@styles/block-type.module.css';
@@ -15,10 +15,11 @@ export const RenderPageRef: React.FC<{
     data?: BlockData;
 }> = ({ type, children, data }) => {
     const location = useLocation();
-    const versionName = getVersionPage(location.pathname)?.version!;
+
+    const version = getUrlInfo(location.pathname)?.version!;
 
     if(type === 'page-ref') {
-        const pageInfo = findPage(data?.page!, versionName, 'uid');
+        const pageInfo = getPageInfoFromRevision(data?.page!, version, 'uid');
 
         return (
             <React.Fragment>
@@ -36,7 +37,9 @@ const PageLink: React.FC<{
     link?: string
 }> = ({ pageInfo, link }) => {
     const history = useHistory();
-    const versionName = getVersionPage(location.pathname)?.version!;
+    const location = useLocation();
+
+    const version = getUrlInfo(location.pathname)?.version!;
 
     if (!pageInfo) {
         return <div>error ref:{link}</div>;
@@ -45,7 +48,7 @@ const PageLink: React.FC<{
     return (
         <a
             className='tg-main-color'
-            onClick={() => history.push(`/${versionName}/${pageInfo.path}`)}
+            onClick={() => history.push(`/${version}/${pageInfo.path}`)}
         >
             <div className={styles.blockLink}>
                 <div className='vertical-center-block'>

@@ -1,4 +1,4 @@
-export function findPage(v: string, versionName: string, k?: keyof VersionInfo): VersionInfo | undefined {
+export function getPageInfoFromRevision(v: string, versionName: string, k?: keyof VersionInfo): VersionInfo | undefined {
     if (!revision) {
         return undefined;
     }

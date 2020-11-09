@@ -1,17 +1,18 @@
 import * as React from 'react';
-import { findPage } from '@libs/findPage.ts'
-import { useLocation, useHistory } from 'react-router';
-import { getVersionPage } from '@components/Sider';
+import { useHistory, useLocation } from 'react-router';
 import { Row, Col } from 'antd';
 
-export const Recommend: React.SFC<Partial<{
+import { getPageInfoFromRevision } from '@libs/findPage.ts'
+import { getUrlInfo } from '@components/Sider';
+
+export const Recommend: React.FC<Partial<{
     type: string
 }>> = props => {
     const history = useHistory();
     const location = useLocation();
-    const path = getVersionPage(location.pathname)?.path!;
-    const versionName = getVersionPage(location.pathname)?.version!;
-    const pageInfo = findPage(path, versionName, 'path');
+
+    const { version, path } = getUrlInfo(location.pathname)!;
+    const pageInfo = getPageInfoFromRevision(path, version, 'path');
 
     if (!pageInfo?.pages?.length) {
         return null
@@ -29,7 +30,7 @@ export const Recommend: React.SFC<Partial<{
                             key={index}
                             span={11}
                             onClick={() => {
-                                history.push(`/${versionName}/${childPage.path}`)
+                                history.push(`/${version}/${childPage.path}`)
                             }}
                             style={{
                                 fontSize: '16px',

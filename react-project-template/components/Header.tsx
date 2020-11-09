@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { Link } from 'react-router-dom'
 
-import { getVersionPage } from "@components/Sider";
+import { getUrlInfo } from "@components/Sider";
 import { Search } from "@components/Search";
-import { findPage } from "@libs/findPage";
+import { getPageInfoFromRevision } from "@libs/findPage";
 
 import styles from '@styles/header.module.css';
 
@@ -56,8 +56,8 @@ export const Header: React.FC = ({ children }) => {
 };
 
 const getUrlPath = (pageID: string): string => {
-    const versionName = getVersionPage(location.pathname)?.version!;
-    const pageInfo = findPage(pageID!, versionName, 'uid');
+    const version = getUrlInfo(location.pathname)?.version!;
+    const pageInfo = getPageInfoFromRevision(pageID!, version, 'uid');
 
-    return `/${versionName}/${pageInfo?.path}`;
+    return `/${version}/${pageInfo?.path}`;
 };

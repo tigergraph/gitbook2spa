@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { useLocation } from 'react-router';
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { InlineMath } from 'react-katex';
 
-import { findPage } from '@libs/findPage';
-import { getVersionPage } from './Sider';
+import { getPageInfoFromRevision } from '@libs/findPage';
+import { getUrlInfo } from './Sider';
 
 import assetsMap from '@gitbook/assets.js';
 
@@ -53,19 +52,20 @@ const Emoji: React.FC<{ data?: InlineData, children: any }> = ({ data, children 
 };
 
 const LinkContainer: React.FC<{ data?: InlineData, children: any }> = ({ data, children }) => {
-    const TG_DOCS_URL = 'https://docs.tigergraph.com/';
-    const TG_DOCS_URL_SWITCH_TO_OTHER_VERSION = 'https://docs.tigergraph.com/v';
     const location = useLocation();
 
-    const versionName = getVersionPage(location.pathname)?.version!;
-    const pageInfo = findPage(data?.pageID!, versionName, 'uid');
+    const TG_DOCS_URL = 'https://docs.tigergraph.com/';
+    const TG_DOCS_URL_SWITCH_TO_OTHER_VERSION = 'https://docs.tigergraph.com/v';
+
+    const version = getUrlInfo(location.pathname)?.version!;
+    const pageInfo = getPageInfoFromRevision(data?.pageID!, version, 'uid');
 
     let isInternalLink = true;
     let targetUrl = '';
 
     // handle internal link to other page in the app
     if (data?.pageID && pageInfo) {
-        targetUrl = `/${versionName}/${pageInfo.path}`;
+        targetUrl = `/${version}/${pageInfo.path}`;
     }
 
     // handle external link
@@ -76,7 +76,7 @@ const LinkContainer: React.FC<{ data?: InlineData, children: any }> = ({ data, c
             targetUrl = data.href.replace(TG_DOCS_URL_SWITCH_TO_OTHER_VERSION, '');
         } else if (data.href.includes(TG_DOCS_URL)) {
             const path = data.href.replace(TG_DOCS_URL, '');
-            targetUrl = `/${versionName}/${path}`;
+            targetUrl = `/${version}/${path}`;
         } else {
             isInternalLink = false;
             targetUrl = data.href;

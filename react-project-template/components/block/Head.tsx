@@ -1,6 +1,7 @@
 import * as React from 'react'
-import { BlockData } from '.'
 import { useHistory } from "react-router-dom";
+
+import { BlockData } from '.'
 
 interface AnchorMap {
     [key: string]: {
@@ -19,7 +20,7 @@ export const RenderHead: React.FC<{ type: HeadType, data?: BlockData, version: s
     const history = useHistory();
 
     const child = ((children as any)?.props?.children);
-    const pattern1 = /[,.?:()'"/!*+=-\[\]]/g;
+    const pattern1 = /[,.?:()'"/!*+=\-\[\]]/g;
     const pattern2 = /\b\s+\b/g;
 
     if (anchor === '') {

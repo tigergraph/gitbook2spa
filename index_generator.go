@@ -90,7 +90,7 @@ func (n *NodeTree) CollectIndexContent(resultCollector *[]Section, meetHeading b
 		anchor = strings.ReplaceAll(anchor, "&", "and")
 
 		// replace all the special characters with space
-		patter1 := `[,.?:()'"/!*+=-\[\]]`
+		patter1 := `[,.?:()'"/!*+=\-\[\]]`
 		reg1 := regexp.MustCompile(patter1)
 		anchor = reg1.ReplaceAllString(anchor, " ")
 

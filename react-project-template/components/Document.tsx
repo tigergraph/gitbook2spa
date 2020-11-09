@@ -1,25 +1,31 @@
 import * as React from 'react';
-import { findPage } from '@libs/findPage.ts'
 import { useLocation } from 'react-router';
-import { getVersionPage } from '@components/Sider';
 
-export const Document: React.SFC<Partial<{
+import { getPageInfoFromRevision } from '@libs/findPage.ts'
+import { getUrlInfo } from '@components/Sider';
+
+export const Document: React.FC<Partial<{
     type: string
 }>> = props => {
     const location = useLocation();
-    const path = getVersionPage(location.pathname)?.path!
-    const versionName = getVersionPage(location.pathname)?.version!
+
+    const { version, path } = getUrlInfo(location.pathname)!;
+    const pageInfo = getPageInfoFromRevision(path, version, 'path')!;
+
     React.useEffect(() => {
-        document.body.style.fontFamily = "Content-font, Roboto, sans-serif"
-        document.body.style.color = "#3b454e"
-    }, [])
+        document.body.style.fontFamily = "Content-font, Roboto, sans-serif";
+        document.body.style.color = "#3b454e";
+    }, []);
+
     return <div style={styles.layout}>
         <div style={{ marginBottom: "32px", padding: "40px 0", borderBottom: "2px solid rgb(230, 236, 241)" }}>
-            <h1 style={styles.title}>{findPage(path, versionName, 'path')?.title || "Page Title"}</h1>
+            <h1 style={styles.title}>
+                {pageInfo?.title || "Page Title"}
+            </h1>
             {
-                findPage(path, versionName, 'path')?.description &&
+                pageInfo?.description &&
                 <div style={styles.desc}>
-                    {findPage(path, versionName, 'path')?.description}
+                    {pageInfo?.description}
                 </div>
             }
         </div>
@@ -28,7 +34,8 @@ export const Document: React.SFC<Partial<{
             (() => {
                 return React.Children.map(props.children, (child: any, idx) => {
                     if (child?.props?.type === 'heading-1' && idx === 0) {
-                        const child = (props?.children as any)?.[0]
+                        const child = (props?.children as any)?.[0];
+
                         if (!child) {
                             return null;
                         }
@@ -46,7 +53,7 @@ export const Document: React.SFC<Partial<{
             })()
         }
     </div>
-}
+};
 
 const styles: Record<
     'layout' | 'title' | 'desc'
@@ -70,4 +77,5 @@ const styles: Record<
         lineHeight: 1.625,
         color: "rgb(116,129,141)"
     }
-}
+};
+
