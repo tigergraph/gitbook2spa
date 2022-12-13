@@ -19,7 +19,7 @@
     "antd": "^4.2.0",
     "babel-loader": "^8.1.0",
     "css-loader": "^3.5.3",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "file-loader": "^6.0.0",
     "fuse.js": "6.4.1",
     "html-webpack-plugin": "^4.3.0",
